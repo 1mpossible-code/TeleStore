@@ -4,7 +4,8 @@ import os
 import asyncio
 import requests
 
-from telegram.ext import Application, Update, ContextTypes
+from telegram import Update
+from telegram.ext import Application, ContextTypes, filters, CommandHandler, MessageHandler
 
 load_dotenv()
 
@@ -26,13 +27,24 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def delete_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Delete user messages."""
-    await update.message.reply_text(update.message.text)
+    await update.message.delete()
+    logger.info(f"Message from {update.effective_user.id} deleted: {update.message.text}")
+
+def polling():
+    application = Application.builder().token(os.getenv("TOKEN")).build()
+
+    application.add_handler(CommandHandler("start", start))
+
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, delete_messages))
+    
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 async def main() -> None:
     """Start the bot."""
     application = Application.builder().token(os.getenv("TOKEN")).build()
     chat_id = os.getenv("CHAT_ID")
     bot = application.bot
+    logger.info("Starting bot")
 
     # print(await application.bot.send_document(
     #     chat_id,
@@ -48,3 +60,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+    
