@@ -38,6 +38,10 @@ class Files:
     def get_all_files(self):
         self.cursor.execute("SELECT * FROM files")
         return self.cursor.fetchall()
+    
+    def get_file(self, uid):
+        self.cursor.execute("SELECT * FROM files WHERE id = ?", (uid,))
+        return self.cursor.fetchone()
 
     def remove_file(self, file_id):
         self.cursor.execute("DELETE FROM files WHERE id = ?", (file_id,))
