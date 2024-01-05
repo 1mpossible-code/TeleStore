@@ -3,9 +3,10 @@ from dotenv import load_dotenv
 import os
 import asyncio
 import requests
+from App import App
 
 from telegram import Update
-from telegram.ext import Application, ContextTypes, filters, CommandHandler, MessageHandler
+from telegram.ext import ContextTypes, filters, CommandHandler, MessageHandler
 
 load_dotenv()
 
@@ -18,45 +19,10 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
-    user = update.effective_user
-    await update.message.reply_html(
-        rf"Hi {user.mention_html()}!, your chat_id is `{update.effective_chat.id}`",
-    )
-
-async def delete_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Delete user messages."""
-    await update.message.delete()
-    logger.info(f"Message from {update.effective_user.id} deleted: {update.message.text}")
-
-def polling():
-    application = Application.builder().token(os.getenv("TOKEN")).build()
-
-    application.add_handler(CommandHandler("start", start))
-
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, delete_messages))
-    
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
-
 async def main() -> None:
     """Start the bot."""
-    application = Application.builder().token(os.getenv("TOKEN")).build()
-    chat_id = os.getenv("CHAT_ID")
-    bot = application.bot
-    logger.info("Starting bot")
-
-    # print(await application.bot.send_document(
-    #     chat_id,
-    #     open("test.txt", "rb"),
-    # ))
-
-    # f = await application.bot.get_file(file_id)
-    # link = f.file_path
-    # with open("test2.txt", "wb") as file:
-    #     file.write(requests.get(link).content)
-    
-    # await bot.delete_message(chat_id, message_id)
+    app = App()
+    print(await app.get_all_files())
 
 if __name__ == "__main__":
     asyncio.run(main())
