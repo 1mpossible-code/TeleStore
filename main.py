@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 async def main() -> None:
     """Start the bot."""
-    app = App()
-    print(await app.get_all_files())
+    app = App(os.getenv("TOKEN"), os.getenv("CHAT_ID"), "db.sqlite", "./temp", "./files")
+    print(await app.get_all_files_info())
 
 if __name__ == "__main__":
     asyncio.run(main())

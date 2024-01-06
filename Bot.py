@@ -7,9 +7,9 @@ from typing import Tuple
 from telegram.ext import Application
 
 class Bot:
-    def __init__(self) -> None:
-        self.application = Application.builder().token(os.getenv("TOKEN")).build()
-        self.chat_id = os.getenv("CHAT_ID")
+    def __init__(self, token, chat_id) -> None:
+        self.application = Application.builder().token(token).build()
+        self.chat_id = chat_id
 
     async def send_file(self, file_path: str) -> Tuple[int, str]:
         data = await self.application.bot.send_document(
