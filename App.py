@@ -16,7 +16,7 @@ class App:
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
 
-    async def send_file(self, file_path: str) -> None:
+    async def save_file(self, file_path: str) -> None:
         # if the file is greater than 2000MB, we will split it into multiple files and send them separately
         if os.path.getsize(file_path) > 2000 * 1024 * 1024:
             logging.info("File too large, splitting...")
@@ -45,7 +45,7 @@ class App:
             self.files.insert_file(file_path, msg_id, file_id, os.path.getsize(file_path))
             logging.info("File sent and recorded")
 
-    async def get_file_content(self, uid: int) -> str:
+    async def __get_file_content(self, uid: int) -> str:
         f = self.files.get_file(uid)
         file_ids = f[3]
         if "," in file_ids:
@@ -58,8 +58,8 @@ class App:
         logging.info("File content received")
         return content
 
-    async def save_file(self, uid: int) -> None:
-        content = await self.get_file_content(uid)
+    async def download_file(self, uid: int) -> None:
+        content = await self.__get_file_content(uid)
         f = self.files.get_file(uid)
         file_name = f[1]
         file_path = os.path.join(self.files_dir, file_name)
@@ -67,7 +67,7 @@ class App:
             file.write(content)
         logging.info("File saved")
 
-    async def get_all_files(self) -> list:
+    async def get_all_files_info(self) -> list:
         return self.files.get_all_files()
 
     async def delete_file(self, uid: str) -> None:
