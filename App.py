@@ -2,84 +2,93 @@ import logging
 import os
 from Bot import Bot
 from Files import Files
+from FileManager import FileManager
+
+MAX_FILE_SIZE_MB = 1
+MB_TO_BYTES = 1024 * 1024
 
 
 class App:
     def __init__(self, token, chat_id, db_name, temp_dir, files_dir) -> None:
+        """Initialize the application with bot, database, and file management components."""
         self.bot = Bot(token, chat_id)
-        self.files = Files(db_name)
-        self.temp_dir = temp_dir
-        self.files_dir = files_dir
-        # check if directory exists
-        if not os.path.exists(self.files_dir):
-            os.makedirs(self.files_dir)
-        if not os.path.exists(self.temp_dir):
-            os.makedirs(self.temp_dir)
+        self.files_db = Files(db_name)
+        self.file_manager = FileManager(temp_dir, files_dir)
 
     async def save_file(self, file_path: str) -> None:
-        # if the file is greater than 2000MB, we will split it into multiple files and send them separately
-        if os.path.getsize(file_path) > 2000 * 1024 * 1024:
-            logging.info("File too large, splitting...")
-            file_name = os.path.basename(file_path)
-            file_dir = self.temp_dir
-            # split file into 2000MB chunks
-            os.system(f"split -b 2000M {file_path} {file_dir}/{file_name}_")
-            # get all files in the directory
-            files = os.listdir(file_dir)
-            # sort the files by their letter: _aa, _ab, _ac, etc.
-            files.sort()
-            # send each file
-            msg_ids = []
-            file_ids = []
-            for file in files:
-                msg_id, file_id = await self.bot.send_file(os.path.join(file_dir, file))
-                msg_ids.append(msg_id)
-                file_ids.append(file_id)
-            # record the files in the db
-            self.files.insert_file(file_path, msg_ids, file_ids, os.path.getsize(file_path))
-            logging.info("File sent and recorded")
-            # clean up the directory
-            os.system(f"rm -rf {file_dir}/*")
+        """Save a file by either sending it directly or handling it as a large file."""
+        if self.file_manager.is_file_large(file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES):
+            logging.info(f"Handling large file: {file_path}")
+            await self._handle_large_file(file_path)
         else:
-            msg_id, file_id = await self.bot.send_file(file_path)
-            self.files.insert_file(file_path, msg_id, file_id, os.path.getsize(file_path))
-            logging.info("File sent and recorded")
+            logging.info(f"Sending file: {file_path}")
+            await self._send_file(file_path)
 
-    async def __get_file_content(self, uid: int) -> str:
-        f = self.files.get_file(uid)
-        file_ids = f[3]
-        if "," in file_ids:
-            file_ids = file_ids.split(",")
-        else:
-            file_ids = [file_ids]
-        content = bytes()
-        for file_id in file_ids:
-            content += await self.bot.get_file(file_id)
-        logging.info("File content received")
-        return content
+    async def _handle_large_file(self, file_path: str):
+        """Handle a large file by splitting and sending it in parts."""
+        logging.info("Splitting the large file...")
+        split_files = self.file_manager.split_file(
+            file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES
+        )
+        msg_ids, file_ids = await self._send_multiple_files(split_files)
+        self.files_db.insert_file(
+            file_path, msg_ids, file_ids, os.path.getsize(file_path)
+        )
+        logging.info("Large file successfully sent and recorded in the database.")
+        self.file_manager.clean_directory()
+
+    async def _send_multiple_files(self, file_paths):
+        """Send multiple files and return message and file IDs."""
+        msg_ids = []
+        file_ids = []
+        for file in file_paths:
+            logging.info(f"Sending file part: {file}")
+            msg_id, file_id = await self.bot.send_file(file)
+            msg_ids.append(msg_id)
+            file_ids.append(file_id)
+        return msg_ids, file_ids
+
+    async def _send_file(self, file_path: str):
+        """Send a single file."""
+        msg_id, file_id = await self.bot.send_file(file_path)
+        self.files_db.insert_file(
+            file_path, msg_id, file_id, os.path.getsize(file_path)
+        )
+        logging.info("File sent and recorded in the database.")
 
     async def download_file(self, uid: int) -> None:
-        content = await self.__get_file_content(uid)
-        f = self.files.get_file(uid)
-        file_name = f[1]
-        file_path = os.path.join(self.files_dir, file_name)
+        """Download a file based on its unique identifier."""
+        logging.info(f"Downloading file with UID: {uid}")
+        file_info = self.files_db.get_file(uid)
+        if not file_info:
+            logging.error(f"File with UID {uid} not found.")
+            return
+
+        file_ids = file_info[3].split(",")
+        file_path = os.path.join(self.file_manager.files_dir, file_info[1])
+
         with open(file_path, "wb") as file:
+            content = bytes()
+            for file_id in file_ids:
+                content += await self.bot.get_file(file_id)
             file.write(content)
-        logging.info("File saved")
+
+        logging.info(f"File downloaded: {file_path}")
 
     async def get_all_files_info(self) -> list:
-        return self.files.get_all_files()
+        """Get information about all files."""
+        logging.info("Fetching information for all files.")
+        return self.files_db.get_all_files()
 
-    async def delete_file(self, uid: str) -> None:
-        f = self.files.get_file(uid)
-        message_ids = f[2]
-        # delete all messages associated with the file
-        if "," in message_ids:
-            message_ids = message_ids.split(",")
-        else:
-            message_ids = [message_ids]
-        for message_id in message_ids:
-            await self.bot.delete_file(int(message_id))
-            self.files.remove_file(uid)
-            logging.info("Message deleted with id " + message_id)
-        logging.info(f"File deleted and removed from db: {uid}")
+    async def delete_file(self, uid: int) -> None:
+        """Delete a file based on its unique identifier."""
+        logging.info(f"Deleting file with UID: {uid}")
+        file_info = self.files_db.get_file(uid)
+        if not file_info:
+            logging.error(f"File with UID {uid} not found.")
+            return
+        msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
+        for msg_id in msg_ids:
+            await self.bot.delete_file(msg_id)
+        self.files_db.remove_file(uid)
+        logging.info(f"File with UID {uid} deleted from database and bot storage.")
