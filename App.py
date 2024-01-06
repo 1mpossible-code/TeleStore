@@ -4,7 +4,7 @@ from Bot import Bot
 from Files import Files
 from FileManager import FileManager
 
-MAX_FILE_SIZE_MB = 1
+MAX_FILE_SIZE_MB = 2000
 MB_TO_BYTES = 1024 * 1024
 
 
