@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 async def main() -> None:
     """Start the bot."""
-    app = App()
+    app = App(os.getenv("TOKEN"), os.getenv("CHAT_ID"), "db.sqlite", "./temp", "./files")
     print(await app.get_all_files())
 
 if __name__ == "__main__":

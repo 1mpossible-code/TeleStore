@@ -5,20 +5,27 @@ from Files import Files
 
 
 class App:
-    def __init__(self) -> None:
-        self.bot = Bot()
-        self.files = Files("db.sqlite")
+    def __init__(self, token, chat_id, db_name, temp_dir, files_dir) -> None:
+        self.bot = Bot(token, chat_id)
+        self.files = Files(db_name)
+        self.temp_dir = temp_dir
+        self.files_dir = files_dir
+        # check if directory exists
+        if not os.path.exists(self.files_dir):
+            os.makedirs(self.files_dir)
+        if not os.path.exists(self.temp_dir):
+            os.makedirs(self.temp_dir)
 
     async def send_file(self, file_path: str) -> None:
         # if the file is greater than 2000MB, we will split it into multiple files and send them separately
         if os.path.getsize(file_path) > 2000 * 1024 * 1024:
             logging.info("File too large, splitting...")
             file_name = os.path.basename(file_path)
-            file_dir = "temp"
+            file_dir = self.temp_dir
             # split file into 2000MB chunks
             os.system(f"split -b 2000M {file_path} {file_dir}/{file_name}_")
             # get all files in the directory
-            files = os.listdir("temp")
+            files = os.listdir(file_dir)
             # sort the files by their letter: _aa, _ab, _ac, etc.
             files.sort()
             # send each file
@@ -51,14 +58,11 @@ class App:
         logging.info("File content received")
         return content
 
-    async def save_file(self, uid: int, dir: str = "./temp") -> None:
+    async def save_file(self, uid: int) -> None:
         content = await self.get_file_content(uid)
         f = self.files.get_file(uid)
         file_name = f[1]
-        file_path = os.path.join(dir, file_name)
-        # check if directory exists
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+        file_path = os.path.join(self.files_dir, file_name)
         with open(file_path, "wb") as file:
             file.write(content)
         logging.info("File saved")
