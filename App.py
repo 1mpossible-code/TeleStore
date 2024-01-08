@@ -192,3 +192,8 @@ class App:
             await self.bot.delete_file(msg_id)
         self.files_db.remove_file(uid)
         logging.info(f"File with UID {uid} deleted from database and bot storage.")
+    
+    def __del__(self) -> None:
+        """Delete the database and file manager objects."""
+        del self.files_db
+        logging.info("Database connection closed.")

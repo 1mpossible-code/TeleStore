@@ -127,6 +127,12 @@ class Files:
         """
         self.cursor.close()
         self.conn.close()
+    
+    def __del__(self):
+        """
+        Closes the cursor and the database connection.
+        """
+        self.close()
 
 
 if __name__ == "__main__":
