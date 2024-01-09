@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 async def main() -> None:
     """Start the bot."""
     app = App()
+    await app.upload_file("s.txt")
     print(await app.get_all_files_info())
 
 if __name__ == "__main__":
     asyncio.run(main())
+    
     
