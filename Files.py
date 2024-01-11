@@ -141,6 +141,7 @@ if __name__ == "__main__":
     db.insert_file("file1", [1, 2, 3, 4], "file1_id", 100)  # Insert a file into the database
     db.insert_file("file2", [1, 2, 3, 4], "file2_id", 200)  # Insert another file into the database
     files = db.get_all_files()  # Retrieve all files from the database
+    # print(db.get_file(99))
     for file in files:
         print(file)  # Print each file
     db.remove_file(1)  # Remove file with id 1

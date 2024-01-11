@@ -1,16 +1,25 @@
-import asyncio
-from flask import Flask, request, jsonify, send_from_directory
-from App import App
+from flask import Flask, request, jsonify, send_from_directory,render_template
 from dotenv import load_dotenv
+from App import App
+import asyncio
+import os
+
 
 load_dotenv()
 
 app = Flask(__name__)
 bot = App()
 
+
+UPLOAD_FOLDER = os.getcwd()
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['SECRET_KEY'] = str(os.urandom(12))
+
+
 @app.route('/')
 def home():
-    return '🏠'
+    return render_template('home.html')
     
 @app.route('/request',methods=['GET'])
 def handle_Get():
@@ -18,30 +27,55 @@ def handle_Get():
         data = asyncio.run(bot.get_all_files_info())
         data_dict = [{'id': item[0], 'name': item[1], 'message_ids':item[2],'file_ids':item[3],'size':item[4],} for item in data]
         return jsonify(data_dict)
+ 
+@app.route('/request/<int:id>',methods=['GET'])
+def handle_GetbyID(id):
+    if request.method == 'GET':
+        try:
+            data_tup = asyncio.run(bot.get_single_file(id))
+            return jsonify({'id': data_tup[0], 'name': data_tup[1], 'message_ids':data_tup[2],'file_ids':data_tup[3],'size':data_tup[4],})
+        except ValueError:
+            return jsonify({'error': 'not found',
+                        'message': 'invalid resource URI'}),404
         
-@app.route('/request',methods=['POST'])
+@app.route('/',methods=['POST'])
 def handle_Post():
-    None
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({"message": "No file part in the request"}), 400
+        
+        file = request.files['file']
 
-@app.route('/request',methods=['DELETE'])
+        if file.filename == '':
+            return jsonify({"message": "No selected file"}), 400
+        else:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+            asyncio.run(bot.upload_file(file.filename))
+            return jsonify({"message": "File successfully uploaded"}), 200
+
+
+
+            
+
+@app.route('/request/<int:id>',methods=['DELETE'])
 def handle_Delete():
-    None
-
+    if request.method == 'DELETE':
+        try:
+            asyncio.run(bot.delete_file(id))
+            return f'Item {id} was successfully deleted'
+        except ValueError:
+            return jsonify({'error': 'not found',
+                        'message': 'invalid resource URI'}),404
 
 """
 TODO:
     - CREATE:
         - upload_file: Saves a file by either sending it directly or handling it as a large file.
-
-    - READ:
-        - get_all_files_info: Gets information about all files.
-        - READ by ID
-    - DELETE:
-        - delete_file: Deletes a file based on its unique identifier.
 """
 
 if __name__ == "__main__":
     asyncio.run(app.run(debug=True, port=3000))
+    
  
  
  # from flask import Flask, flash, request, redirect, url_for, render_template
@@ -110,6 +144,3 @@ if __name__ == "__main__":
 #         app.run(debug=True,port=3000)
     
 
-
-    
-    
