@@ -174,14 +174,14 @@ class App:
         """
         logging.info("Fetching information for all files.")
         return self.files_db.get_all_files()
-    async def get_single_file(self,int:id) -> list:
+    async def get_single_file(self,Uid)-> tuple:
         """Get information about one files from the database via ID.
 
         Returns:
             Tuple: a tuple containing the params listed above
         """
         logging.info("Fetching information for all files.")
-        return self.files_db.get_file(id)
+        return self.files_db.get_file(Uid)
 
     async def delete_file(self, uid: int) -> None:
         """Delete a file based on its unique identifier. This deletes the file from the database and bot storage.
