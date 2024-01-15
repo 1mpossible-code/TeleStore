@@ -44,7 +44,6 @@ class App:
         
         # Create an instance of the bot, database, file manager, and cryptography classes.
         self.bot = Bot(token, chat_id)
-        self.files_db = Files(db_name)
         self.file_manager = FileManager(temp_dir, files_dir)
         self.cryptography = Cryptography()
 
@@ -74,7 +73,7 @@ class App:
             file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES
         )
         msg_ids, file_ids = await self._send_multiple_files(split_files)
-        self.files_db.insert_file(
+        Files.insert_file(
             os.path.basename(file_path), msg_ids, file_ids, size
         )
         logging.info("Large file successfully sent and recorded in the database.")
@@ -110,7 +109,7 @@ class App:
         logging.info(f"Encrypting file: {file_path}")
         self.cryptography.encrypt_file(file_path)
         msg_id, file_id = await self.bot.send_file(file_path)
-        self.files_db.insert_file(
+        Files.insert_file(
             os.path.basename(file_path), msg_id, file_id, size
         )
         logging.info("File sent and recorded in the database.")
@@ -123,7 +122,7 @@ class App:
             uid (int): The unique identifier of the file to be downloaded.
         """
         logging.info(f"Downloading file with UID: {uid}")
-        file_info = self.files_db.get_file(uid)
+        file_info = Files.get_file(uid)
         if not file_info:
             logging.error(f"File with UID {uid} not found.")
             return
@@ -173,15 +172,25 @@ class App:
                 size (int): The size of the file in bytes.
         """
         logging.info("Fetching information for all files.")
-        return self.files_db.get_all_files()
-    async def get_single_file(self,Uid)-> tuple:
-        """Get information about one files from the database via ID.
+        return Files.get_all_files()
+    
+    def get_file_info(self, uid: int) -> tuple:
+        """Get information about a file from the database.
+
+        Args:
+            uid (int): The unique identifier of the file.
 
         Returns:
-            Tuple: a tuple containing the params listed above
+            tuple: A tuple containing the following information:
+                id (int): The ID of the file.
+                name (str): The name of the file.
+                message_ids (str): The IDs of the messages associated with the file.
+                file_ids (str): The IDs of the files associated with the file.
+                size (int): The size of the file in bytes.
         """
-        logging.info("Fetching information for all files.")
-        return self.files_db.get_file(Uid)
+        logging.info(f"Fetching information for file with UID: {uid}")
+        return Files.get_file(uid)
+
 
     async def delete_file(self, uid: int) -> None:
         """Delete a file based on its unique identifier. This deletes the file from the database and bot storage.
@@ -191,17 +200,12 @@ class App:
             uid (int): The unique identifier of the file to be deleted.
         """
         logging.info(f"Deleting file with UID: {uid}")
-        file_info = self.files_db.get_file(uid)
+        file_info = Files.get_file(uid)
         if not file_info:
             logging.error(f"File with UID {uid} not found.")
             return
         msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
         for msg_id in msg_ids:
             await self.bot.delete_file(msg_id)
-        self.files_db.remove_file(uid)
+        Files.remove_file(uid)
         logging.info(f"File with UID {uid} deleted from database and bot storage.")
-    
-    def __del__(self) -> None:
-        """Delete the database and file manager objects."""
-        del self.files_db
-        logging.info("Database connection closed.")
