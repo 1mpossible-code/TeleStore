@@ -7,6 +7,6 @@ Pipfile.lock
 .idea
 temp
 secret.key
-files
-__pycache__
+filesgs
+__pycache__q
 .DS_Store
