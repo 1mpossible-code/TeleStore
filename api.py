@@ -38,7 +38,7 @@ def handle_GetbyID(Uid=None):
     if request.method == 'GET':
         try:
             if Uid: #if Uid is specified show one
-                data_tup = asyncio.run(bot.get_single_file(Uid))
+                data_tup = asyncio.run(bot.get_file_info(Uid))
                 return jsonify({'id': data_tup[0], 'name': data_tup[1], 'message_ids':data_tup[2],'file_ids':data_tup[3],'size':data_tup[4],})
             else: # If no Uid is specified show all
                 data = asyncio.run(bot.get_all_files_info())
@@ -64,7 +64,7 @@ def handle_Delete(Uid):
 def handle_Download(Uid):
     if request.method == 'GET':
         try:
-            file_info = asyncio.run(bot.get_single_file(Uid))
+            file_info = asyncio.run(bot.get_file_info(Uid))
             
             asyncio.run(bot.download_file(Uid))
             send_from_directory( bot.file_manager.files_dir,file_info[1],as_attachment=True)
