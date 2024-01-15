@@ -1,6 +1,10 @@
 .env
 venv
 db.sqlite
+db.sqlite3
+Pipfile
+Pipfile.lock
+.idea
 temp
 secret.key
 files
