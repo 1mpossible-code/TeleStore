@@ -8,8 +8,6 @@ load_dotenv()
 
 app = Flask(__name__)
 
-bot = UploadsController()
-
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -17,15 +15,16 @@ def home():
 @app.route('/uploads/', methods=['GET','POST'])
 @app.route('/uploads/<int:uid>', methods=['GET', 'DELETE'])
 def handle_uploads(uid=None):
+    bot = UploadsController()
 
     if request.method == 'GET':
-        return bot.handle_read(uid)
+        return bot.read(uid)
         
     elif request.method == 'POST':
-        return bot.handle_create()
+        return bot.create()
         
     elif request.method == 'DELETE':
-        return bot.handle_delete(uid)
+        return bot.delete(uid)
 
 if __name__ == "__main__":
     asyncio.run(app.run(debug=True, port=3000))
