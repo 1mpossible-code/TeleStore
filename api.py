@@ -16,7 +16,7 @@ def home():
     
 #CREATE
 @app.route('/upload',methods=['POST'])
-def handle_Post():
+def handle_post():
     if request.method == 'POST':
         if 'file' not in request.files:
             return jsonify({"message": "No file part in the request"}), 400
@@ -40,12 +40,13 @@ def handle_uploads(uid=None):
         
         try:
             if uid:
-                file_info = asyncio.run(bot.get_file_info(uid))
+                file_info = bot.get_file_info(uid)
 
                 if download:
                     asyncio.run(bot.download_file(uid))
+                    send_from_directory(bot.file_manager.files_dir, file_info[1], as_attachment=True)
                     bot.file_manager.clean_files_directory()
-                    return send_from_directory(bot.file_manager.files_dir, file_info[1], as_attachment=True)
+                    return jsonify({"message": f"File {uid} successfully downloaded!"}), 200
                 
                 return jsonify({'id': file_info[0], 'name': file_info[1], 'message_ids': file_info[2], 'file_ids': file_info[3], 'size': file_info[4]})
             else:
@@ -54,13 +55,15 @@ def handle_uploads(uid=None):
                 return jsonify(data_dict)
         except ValueError:
             return jsonify({'error': f'Upload {uid} not found', 'message': 'invalid resource URI'}), 404
-
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         try:
             asyncio.run(bot.delete_file(uid))
             return jsonify({"message": f"File {uid} successfully deleted!"}), 200
         except ValueError:
             return jsonify({'error': f'Upload {uid} not found', 'message': 'invalid resource URI'}), 404
+
+
+
 
 if __name__ == "__main__":
     asyncio.run(app.run(debug=True, port=3000))
