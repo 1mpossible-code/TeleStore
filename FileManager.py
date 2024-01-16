@@ -75,4 +75,5 @@ class FileManager:
         """Clean up the file directory."""
         cleanup_command = f"rm -rf {self.files_dir}/*"
         os.system(cleanup_command)
-        logging.info(f"Temporary directory cleaned with command: {cleanup_command}")
+        logging.info(f"Files directory cleaned with command: {cleanup_command}")
+        
