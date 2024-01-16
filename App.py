@@ -203,7 +203,7 @@ class App:
         file_info = Files.get_file(uid)
         if not file_info:
             logging.error(f"File with UID {uid} not found.")
-            return
+            raise ValueError(f"File with UID {uid} not found.")
         msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
         for msg_id in msg_ids:
             await self.bot.delete_file(msg_id)
