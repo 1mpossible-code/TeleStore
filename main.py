@@ -19,24 +19,12 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
-def j(obj):
-    return jsonify(
-        id=obj[0],
-        name=obj[1],
-        encryption_key=obj[2],
-        size=obj[3]
-    )
 
 async def main() -> None:
     """Start the bot."""
     app = App()
-    tup_list = await app.get_all_files_info()
-    for tup in tup_list:
-        print(tup[0])
-    
-
+    print(await app.get_all_files_info())
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
     
