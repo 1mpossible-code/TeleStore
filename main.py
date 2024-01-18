@@ -4,6 +4,7 @@ import os
 import asyncio
 import requests
 from App import App
+from flask import jsonify
 
 from telegram import Update
 from telegram.ext import ContextTypes, filters, CommandHandler, MessageHandler
