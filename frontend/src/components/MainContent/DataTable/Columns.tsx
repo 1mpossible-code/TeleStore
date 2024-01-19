@@ -1,8 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { Upload } from '../MainContent';
-
+import { Upload } from '@/App';
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
 

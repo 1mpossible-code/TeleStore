@@ -1,29 +1,16 @@
 import { DataTable } from './DataTable/DataTable';
 import { columns } from './DataTable/Columns';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { Upload } from '@/App';
 
 // Define a type for the component's props
-export interface Upload {
-  id: number;
-  name: string;
-  size: number;
-}
-const MainContent = () => {
-  const [uploads, setUploads] = useState<Array<Upload>>([]);
+type MainContentProps = {
+  uploads_data: Array<Upload>;
+};
 
-  useEffect(() => {
-    (async () => {
-      const res = await axios.get<Array<Upload>>(
-        'http://127.0.0.1:3000/uploads/'
-      );
-      setUploads(res.data);
-    })();
-  }, []);
-
+const MainContent: React.FC<MainContentProps> = ({ uploads_data }) => {
   return (
     <div className="margin-auto mx-24	">
-      <DataTable columns={columns} data={uploads} />
+      <DataTable columns={columns} data={uploads_data} />
     </div>
   );
 };
