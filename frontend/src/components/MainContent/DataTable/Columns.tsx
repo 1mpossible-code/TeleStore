@@ -1,6 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
+import { Upload } from '../MainContent';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
@@ -14,17 +15,10 @@ function formatBytes(bytes: number, decimals = 2) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
-export type Uploads = {
-  id: number;
-  name: string;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  size: number;
-};
-
-export const columns: ColumnDef<Uploads>[] = [
+export const columns: ColumnDef<Upload>[] = [
   {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: 'id',
+    header: 'File ID',
   },
   {
     accessorKey: 'name',
