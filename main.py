@@ -20,6 +20,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
+
 async def main() -> None:
     """Start the bot."""
     app = App()
@@ -27,4 +28,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-    
