@@ -21,25 +21,12 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-<<<<<<< HEAD
-=======
 # Routes for handling file uploads. Supports GET, POST, and DELETE methods.
 
->>>>>>> main
 
 @app.route('/uploads/', methods=['GET', 'POST'])
 @app.route('/uploads/<int:uid>', methods=['GET', 'DELETE'])
 def handle_uploads(uid=None):
-<<<<<<< HEAD
-    bot = UploadsController()
-
-    if request.method == 'GET':
-        return bot.read(uid)
-
-    elif request.method == 'POST':
-        return bot.create()
-
-=======
     # Initialize bot to handle requests
     bot = UploadsController()
 
@@ -53,14 +40,10 @@ def handle_uploads(uid=None):
         return bot.create()
 
     # DELETE request: Delete a specific file based on UID
->>>>>>> main
     elif request.method == 'DELETE':
         return bot.delete(uid)
 
 
-<<<<<<< HEAD
-=======
 # Run the Flask app with asyncio support
->>>>>>> main
 if __name__ == "__main__":
     asyncio.run(app.run(debug=True, port=3000))
