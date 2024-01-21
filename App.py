@@ -171,6 +171,7 @@ class App:
         logging.info(f"Fetching information for file with UID: {uid}")
         return Files.get_file(uid)
 
+
     async def delete_file(self, uid: int) -> None:
         """Delete a file based on its unique identifier. This deletes the file from the database and bot storage.
         It finds all messages associated with the file and deletes them.
@@ -182,7 +183,7 @@ class App:
         file_info = Files.get_file(uid)
         if not file_info:
             logging.error(f"File with UID {uid} not found.")
-            return
+            raise ValueError(f"File with UID {uid} not found.")
         msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
         for msg_id in msg_ids:
             await self.bot.delete_file(msg_id)

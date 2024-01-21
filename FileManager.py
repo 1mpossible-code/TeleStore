@@ -17,7 +17,8 @@ class FileManager:
         _create_directory_if_not_exists(directory): Creates a directory if it does not already exist.
         is_file_large(file_path, max_size): Checks if a file exceeds the maximum size.
         split_file(file_path, chunk_size): Splits a file into smaller parts if it's too large.
-        clean_directory(): Cleans up the temporary directory.
+        clean_temp_directory(): Cleans up the temporary directory.
+        clean_file_directory(): Cleans up the temporary directory.
     """
     def __init__(self, temp_dir, files_dir):
         """Manage file operations, ensuring directories are set up correctly."""
@@ -64,8 +65,15 @@ class FileManager:
             os.path.join(self.temp_dir, f) for f in sorted(os.listdir(self.temp_dir))
         ]
 
-    def clean_directory(self):
+    def clean_temp_directory(self):
         """Clean up the temporary directory."""
         cleanup_command = f"rm -rf {self.temp_dir}/*"
         os.system(cleanup_command)
         logging.info(f"Temporary directory cleaned with command: {cleanup_command}")
+    
+    def clean_files_directory(self):
+        """Clean up the file directory."""
+        cleanup_command = f"rm -rf {self.files_dir}/*"
+        os.system(cleanup_command)
+        logging.info(f"Files directory cleaned with command: {cleanup_command}")
+        
