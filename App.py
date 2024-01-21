@@ -30,6 +30,7 @@ class App:
         _send_multiple_files: Sends multiple files and returns message and file IDs.
         _send_file: Sends a single file.
     """
+
     def __init__(self) -> None:
         """Initialize the application with bot, database, and file management components."""
         # We get the token and chat ID from environment variables.
@@ -41,7 +42,7 @@ class App:
         db_name = os.getenv("DB_NAME") or "db.sqlite"
         temp_dir = os.getenv("TEMP_DIR") or "temp"
         files_dir = os.getenv("FILES_DIR") or "files"
-        
+
         # Create an instance of the bot, database, file manager, and cryptography classes.
         self.bot = Bot(token, chat_id)
         self.file_manager = FileManager(temp_dir, files_dir)
@@ -54,28 +55,14 @@ class App:
         Args:
             file_path (str): The path of the file to be saved.
         """
-        if self.file_manager.is_file_large(file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES):
-            logging.info(f"Handling large file: {file_path}")
-            await self._handle_large_file(file_path)
-        else:
-            logging.info(f"Sending file: {file_path}")
-            await self._send_file(file_path)
-
-    async def _handle_large_file(self, file_path: str):
-        """Handle a large file by splitting and sending it in parts.
-
-        Args:
-            file_path (str): The path of the large file to be handled.
-        """
+        logging.info(f"Sending file: {file_path}")
         size = os.path.getsize(file_path)
         logging.info("Splitting the large file...")
         split_files = self.file_manager.split_file(
             file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES
         )
         msg_ids, file_ids = await self._send_multiple_files(split_files)
-        Files.insert_file(
-            os.path.basename(file_path), msg_ids, file_ids, size
-        )
+        Files.insert_file(os.path.basename(file_path), msg_ids, file_ids, size)
         logging.info("Large file successfully sent and recorded in the database.")
         self.file_manager.clean_directory()
 
@@ -98,21 +85,6 @@ class App:
             msg_ids.append(msg_id)
             file_ids.append(file_id)
         return msg_ids, file_ids
-
-    async def _send_file(self, file_path: str):
-        """Send a single file.
-
-        Args:
-            file_path (str): The path of the file to be sent.
-        """
-        size = os.path.getsize(file_path)
-        logging.info(f"Encrypting file: {file_path}")
-        self.cryptography.encrypt_file(file_path)
-        msg_id, file_id = await self.bot.send_file(file_path)
-        Files.insert_file(
-            os.path.basename(file_path), msg_id, file_id, size
-        )
-        logging.info("File sent and recorded in the database.")
 
     async def download_file(self, uid: int) -> None:
         """Download a file based on its unique identifier. This downloads the file from the bot storage and decrypts it.
@@ -137,21 +109,29 @@ class App:
                 logging.info(f"Downloading file part: {file_id}")
                 if not os.path.exists(f"{self.file_manager.temp_dir}/{file_info[1]}/"):
                     os.makedirs(f"{self.file_manager.temp_dir}/{file_info[1]}/")
-                with open(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}", "wb") as f:
+                with open(
+                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}", "wb"
+                ) as f:
                     f.write(await self.bot.get_file(file_id))
                     downloaded.append(file_id)
                 logging.info(f"Decrypting file part: {file_id}")
                 print(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
-                self.cryptography.decrypt_file(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
-            
+                self.cryptography.decrypt_file(
+                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}"
+                )
+
             # join file parts
             logging.info("Joining file parts...")
             # if windows, use copy /b command
-            if (os.name == "nt"):
-                os.system(f"copy /b {self.file_manager.temp_dir}/{file_info[1]}/* {file_path}")
+            if os.name == "nt":
+                os.system(
+                    f"copy /b {self.file_manager.temp_dir}/{file_info[1]}/* {file_path}"
+                )
             else:
                 # if linux, use cat command
-                os.system(f"cat {self.file_manager.temp_dir}/{file_info[1]}/* > {file_path}")
+                os.system(
+                    f"cat {self.file_manager.temp_dir}/{file_info[1]}/* > {file_path}"
+                )
             logging.info("File parts joined.")
 
         logging.info(f"File downloaded: {file_path}")
@@ -173,7 +153,7 @@ class App:
         """
         logging.info("Fetching information for all files.")
         return Files.get_all_files()
-    
+
     def get_file_info(self, uid: int) -> tuple:
         """Get information about a file from the database.
 
