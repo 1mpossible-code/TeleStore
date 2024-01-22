@@ -105,7 +105,7 @@ export const columns: ColumnDef<Upload>[] = [
             <DropdownMenuItem
               onClick={async () => {
                 const res = await axios.delete<Upload>(
-                  `http://127.0.0.1:3000/uploads/${row.original.id}`
+                  `http://127.0.0.1:3000/uploads/${Upload.id}`
                 );
                 console.log(res);
               }}
