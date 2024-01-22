@@ -1,16 +1,32 @@
 import { DataTable } from './DataTable/DataTable';
 import { columns } from './DataTable/Columns';
-import { Upload } from '@/App';
 
-// Define a type for the component's props
-type MainContentProps = {
-  uploads_data: Array<Upload>;
-};
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../state/store';
+import { getAsync } from '@/state/mainContent/mainContentSlice';
+import { useEffect } from 'react';
 
-const MainContent: React.FC<MainContentProps> = ({ uploads_data }) => {
-  return (
+
+
+const MainContent = () => {
+  const data = useSelector((state: RootState) => state.mainContent.data);
+  const isLoading = useSelector((state: RootState) => state.mainContent.loading);
+  const error = useSelector((state: RootState) => state.mainContent.error);
+
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(()=>{
+    dispatch(getAsync())}, []
+  );
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+  return isLoading ? (
+    <h1>Loading</h1>
+  ) : (
     <div className="margin-auto mx-24	">
-      <DataTable columns={columns} data={uploads_data} />
+      <DataTable columns={columns} data={data} />
     </div>
   );
 };
