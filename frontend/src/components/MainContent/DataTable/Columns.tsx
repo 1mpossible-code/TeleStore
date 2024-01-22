@@ -19,20 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import axios from 'axios';
 
-// import { MoreHorizontal } from 'lucide-react';
-
-// import { Button } from '@/components/ui/button';
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger,
-// } from '@/components/ui/dropdown-menu';
-
-// import { ColumnDef } from '@tanstack/react-table';
-import { Upload } from '@/App';
+import { Upload } from '../../../state/mainContent/mainContentSlice';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
