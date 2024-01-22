@@ -4,6 +4,7 @@ import asyncio
 # Third Party Import
 from dotenv import load_dotenv
 from flask import Flask, request, render_template
+from flask_cors import CORS
 
 # Local Application Import
 from UploadsController import UploadsController
@@ -13,6 +14,7 @@ load_dotenv()
 
 # Initialize Flask application
 app = Flask(__name__)
+CORS(app)
 
 # Route for the home page, returns the home.html template
 
