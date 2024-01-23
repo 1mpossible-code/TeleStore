@@ -125,7 +125,7 @@ class UploadsController:
         user_file.save(user_file_path)
         asyncio.run(self.app.upload_file(user_file_path))
         self.app.file_manager.clean_temp_directory()
-        return jsonify({"message": "File successfully uploaded"}), 200
+        return jsonify({"message": f"{user_file.filename} successfully uploaded"}), 200
 
     def delete(self, uid: int):
         """
