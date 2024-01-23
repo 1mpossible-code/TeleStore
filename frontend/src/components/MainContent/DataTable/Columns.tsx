@@ -21,6 +21,10 @@ import axios from 'axios';
 
 import { Upload } from '../../../state/mainContent/mainContentSlice';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/state/store';
+import { deleteAsync,getAsync} from '@/state/mainContent/mainContentSlice';
+
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
 
@@ -90,7 +94,16 @@ export const columns: ColumnDef<Upload>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
+      const data = useSelector((state: RootState) => state.mainContent.data);
+      const isLoading = useSelector(
+        (state: RootState) => state.mainContent.loading
+      );
+      const error = useSelector((state: RootState) => state.mainContent.error);
+
+      const dispatch = useDispatch<AppDispatch>();
+
       const Upload = row.original;
+
 
       return (
         <DropdownMenu>
@@ -104,10 +117,7 @@ export const columns: ColumnDef<Upload>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={async () => {
-                const res = await axios.delete<Upload>(
-                  `http://127.0.0.1:3000/uploads/${Upload.id}`
-                );
-                console.log(res);
+                dispatch(deleteAsync(Upload.id));
               }}
             >
               Delete Upload

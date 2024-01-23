@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { ApiError, DeleteResponse } from '@/types/responseTypes';
 
 export interface Upload {
   id: number;
@@ -8,14 +9,14 @@ export interface Upload {
   size: number;
 }
 
-interface ApiError {
-  message: string;
-}
+
 
 interface mainContentState {
   loading: boolean;
+  message?:string;
   data: Upload[]; // Array of Upload objects
   error: ApiError | null; // Error state can be an ApiError object or null if there's no error
+
 }
 
 const initialState: mainContentState = {
@@ -43,7 +44,7 @@ const mainContentSlice = createSlice({
         state.loading = true;
       })
       .addCase(getAsync.fulfilled, (state, action: PayloadAction<Upload[]>) => {
-        console.log('getAsync is fufilled!');
+        console.log('getAsync is fulfilled!');
         state.loading = false;
         state.data = action.payload;
       })
@@ -53,18 +54,36 @@ const mainContentSlice = createSlice({
         state.error = {
           message: action.error.message || 'Unknown error occurred',
         };
-      });
+      
+      })
+      .addCase(deleteAsync.pending, ()=>{
+        console.log('deleteAsync is pending...');
+      })
+      .addCase(deleteAsync.fulfilled,(state,action)=>{
+        console.log('deleteAsync is fulfilled!');
+        state.message = action.payload.message;
+        state.data = state.data.filter(
+          (upload) => upload.id !== action.meta.arg
+        ); 
+      })
   },
 });
 
 export const getAsync = createAsyncThunk(
   'mainContentSlice/getAsync',
   async (): Promise<Array<Upload>> => {
-    const response = await axios.get<Array<Upload>>(
-      'http://127.0.0.1:3000/uploads/'
-    );
-    console.log(response.data);
-    return response.data;
+    const url = 'http://127.0.0.1:3000/uploads/';
+    const res = await axios.get<Array<Upload>>(url);
+    return res.data;
+  }
+);
+
+export const deleteAsync = createAsyncThunk(
+  'mainContentSlice/deleteAsync',
+  async (id: number): Promise<DeleteResponse> => {
+    const url = `http://127.0.0.1:3000/uploads/${id}`;
+    const res = await axios.delete<DeleteResponse>(url);
+    return res.data;
   }
 );
 
