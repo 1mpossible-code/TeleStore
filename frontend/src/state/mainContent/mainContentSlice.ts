@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  
+} from '@reduxjs/toolkit';
 import axios from 'axios';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ApiError, DeleteResponse } from '@/types/responseTypes';
@@ -54,18 +58,27 @@ const mainContentSlice = createSlice({
         state.error = {
           message: action.error.message || 'Unknown error occurred',
         };
-      
       })
-      .addCase(deleteAsync.pending, ()=>{
+      .addCase(deleteAsync.pending, () => {
         console.log('deleteAsync is pending...');
       })
-      .addCase(deleteAsync.fulfilled,(state,action)=>{
+      .addCase(deleteAsync.fulfilled, (state, action) => {
         console.log('deleteAsync is fulfilled!');
         state.message = action.payload.message;
         state.data = state.data.filter(
           (upload) => upload.id !== action.meta.arg
-        ); 
+        );
       })
+      .addCase(uploadAsync.pending, () => {
+        console.log('uploadAsync is pending...');
+      })
+      .addCase(
+        uploadAsync.fulfilled,
+        (state, action) => {
+          console.log('uploadAsync is fulfilled...');
+          state.data = [...state.data, action.payload]
+        }
+      );
   },
 });
 
@@ -87,6 +100,23 @@ export const deleteAsync = createAsyncThunk(
   }
 );
 
+export const downloadAsync = createAsyncThunk(
+  'mainContentSlice/downloadAsync',
+  async (id: number) => {
+    const url = `http://127.0.0.1:3000/uploads/${id}?download=1`;
+    await axios.get(url);
+  }
+);
+
+export const uploadAsync = createAsyncThunk(
+  'mainContentSlice/uploadAsync',
+  async (formData: FormData)=> {
+    const url = `http://127.0.0.1:3000/uploads/`;
+    const headers = { 'Content-Type': 'multipart/form-data' };
+    const res = await axios.post(url, formData, { headers });
+    return res.data;
+  }
+);
 
 
 
