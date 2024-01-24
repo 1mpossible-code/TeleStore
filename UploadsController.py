@@ -109,7 +109,7 @@ class UploadsController:
         and saves the uploaded file using the App's file management capabilities.
 
         Returns:
-            flask.Response: JSON response indicating the success or failure of the file upload.
+            flask.Response: JSON response of the new file that was uploaded.
         """
         if 'file' not in request.files:
             return jsonify({"message": "No file part in the request"}), 400
@@ -125,7 +125,7 @@ class UploadsController:
         user_file.save(user_file_path)
         asyncio.run(self.app.upload_file(user_file_path))
         
-        
+        # Get last item in array and format in JSON        
         arr_len = len(asyncio.run(self.app.get_all_files_info()))
         new_file = asyncio.run(self.app.get_all_files_info())[arr_len - 1]
         file_dict = {'id': new_file[0], 'name': new_file[1],
