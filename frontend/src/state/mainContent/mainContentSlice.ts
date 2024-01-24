@@ -6,6 +6,7 @@ import {
 import axios from 'axios';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ApiError, DeleteResponse } from '@/types/responseTypes';
+import download from 'js-file-download'
 
 export interface Upload {
   id: number;
@@ -100,11 +101,19 @@ export const deleteAsync = createAsyncThunk(
   }
 );
 
+interface downloadArguments {
+  id: number,
+  name: string,
+}
+
 export const downloadAsync = createAsyncThunk(
   'mainContentSlice/downloadAsync',
-  async (id: number) => {
+  async ({id, name}: downloadArguments) => {
     const url = `http://127.0.0.1:3000/uploads/${id}?download=1`;
-    await axios.get(url);
+    const {data: blob} = await axios.get(url, {
+      responseType: "blob",
+    });
+    download(blob, name)
   }
 );
 

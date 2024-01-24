@@ -1,11 +1,6 @@
 'use client';
-import {
-  CaretSortIcon,
-  DotsHorizontalIcon,
-} from '@radix-ui/react-icons';
-import {
-  ColumnDef,
-} from '@tanstack/react-table';
+import { CaretSortIcon, DotsHorizontalIcon } from '@radix-ui/react-icons';
+import { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,13 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import axios from 'axios';
 
-import { Upload } from '../../../state/mainContent/mainContentSlice';
+import {
+  Upload,
+  downloadAsync,
+} from '../../../state/mainContent/mainContentSlice';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/state/store';
-import { deleteAsync,getAsync} from '@/state/mainContent/mainContentSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/state/store';
+import { deleteAsync } from '@/state/mainContent/mainContentSlice';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
@@ -94,16 +91,9 @@ export const columns: ColumnDef<Upload>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const data = useSelector((state: RootState) => state.mainContent.data);
-      const isLoading = useSelector(
-        (state: RootState) => state.mainContent.loading
-      );
-      const error = useSelector((state: RootState) => state.mainContent.error);
 
       const dispatch = useDispatch<AppDispatch>();
-
       const Upload = row.original;
-
 
       return (
         <DropdownMenu>
@@ -123,7 +113,13 @@ export const columns: ColumnDef<Upload>[] = [
               Delete Upload
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                dispatch(downloadAsync({id: Upload.id, name: Upload.name}));
+              }}
+            >
+              Download File
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
