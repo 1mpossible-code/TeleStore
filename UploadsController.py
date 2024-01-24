@@ -124,8 +124,15 @@ class UploadsController:
             self.app.file_manager.temp_dir, user_file.filename)
         user_file.save(user_file_path)
         asyncio.run(self.app.upload_file(user_file_path))
+        
+        
+        arr_len = len(asyncio.run(self.app.get_all_files_info()))
+        new_file = asyncio.run(self.app.get_all_files_info())[arr_len - 1]
+        file_dict = {'id': new_file[0], 'name': new_file[1],
+                     'message_ids': new_file[2], 'file_ids': new_file[3],
+                     'size': new_file[4]}
         self.app.file_manager.clean_temp_directory()
-        return jsonify({"message": f"{user_file.filename} successfully uploaded"}), 200
+        return jsonify(file_dict), 200
 
     def delete(self, uid: int):
         """
