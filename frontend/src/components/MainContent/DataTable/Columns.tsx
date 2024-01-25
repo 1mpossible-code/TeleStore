@@ -20,7 +20,6 @@ import {
 
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
-import { deleteAsync } from '@/state/mainContent/mainContentSlice';
 import DeleteDialog from './DeleteDialog';
 
 function formatBytes(bytes: number, decimals = 2) {
@@ -60,7 +59,18 @@ export const columns: ColumnDef<Upload>[] = [
   },
   {
     accessorKey: 'id',
-    header: 'File ID',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="pr-10"
+        >
+          File ID
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
   },
   {
@@ -70,17 +80,29 @@ export const columns: ColumnDef<Upload>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          
         >
           File Name
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div>{row.getValue('name')}</div>,
+    cell: ({ row }) => <div >{row.getValue('name')}</div>,
   },
   {
     accessorKey: 'size',
-    header: () => <div className="text-right">File Size</div>,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className=''
+        >
+          File Size
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const size = parseFloat(row.getValue('size'));
       const formatted = formatBytes(size);
@@ -92,7 +114,6 @@ export const columns: ColumnDef<Upload>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-
       const dispatch = useDispatch<AppDispatch>();
       const Upload = row.original;
 
