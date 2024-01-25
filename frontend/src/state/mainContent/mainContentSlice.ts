@@ -70,13 +70,15 @@ const mainContentSlice = createSlice({
           (upload) => upload.id !== action.meta.arg
         );
       })
-      .addCase(uploadAsync.pending, () => {
+      .addCase(uploadAsync.pending, (state) => {
         console.log('uploadAsync is pending...');
+        state.loading = true;
       })
       .addCase(
         uploadAsync.fulfilled,
         (state, action) => {
           console.log('uploadAsync is fulfilled...');
+          state.loading = false;
           state.data = [...state.data, action.payload]
         }
       );
