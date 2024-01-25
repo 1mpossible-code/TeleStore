@@ -40,6 +40,7 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({ Uid }) => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
+              className="bg-red-600 hover:bg-red-500 text-white	"
               onClick={async () => {
                 dispatch(deleteAsync(Uid));
               }}
