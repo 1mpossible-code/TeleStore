@@ -21,6 +21,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
 import { deleteAsync } from '@/state/mainContent/mainContentSlice';
+import DeleteDialog from './DeleteDialog';
 
 function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return '0 Bytes';
@@ -105,17 +106,15 @@ export const columns: ColumnDef<Upload>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={async () => {
-                dispatch(deleteAsync(Upload.id));
-              }}
-            >
-              Delete Upload
-            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            <div className="flex h-8 justify-center pr-9 cursor-default hover:transition-colors hover:duration-150 hover:ease-in-out">
+              <DeleteDialog Uid={Upload.id} />
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
-                dispatch(downloadAsync({id: Upload.id, name: Upload.name}));
+                dispatch(downloadAsync({ id: Upload.id, name: Upload.name }));
               }}
             >
               Download File
