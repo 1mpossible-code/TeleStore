@@ -5,12 +5,23 @@ import asyncio
 from dotenv import load_dotenv
 from flask import Flask, request, render_template
 from flask_cors import CORS
+import logging
 
 # Local Application Import
 from UploadsController import UploadsController
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+# set higher logging level for httpx to avoid all GET and POST requests being logged
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
+
 
 # Initialize Flask application
 app = Flask(__name__)

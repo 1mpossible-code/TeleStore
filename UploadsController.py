@@ -121,7 +121,7 @@ class UploadsController:
 
         # Create the file path and use app upload_file method
         user_file_path = os.path.join(
-            self.app.file_manager.file_dir, user_file.filename)
+            self.app.file_manager.files_dir, user_file.filename)
         user_file.save(user_file_path)
         asyncio.run(self.app.upload_file(user_file_path))
         

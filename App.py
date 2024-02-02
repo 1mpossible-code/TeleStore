@@ -6,7 +6,7 @@ from FileManager import FileManager
 from Cryptography import Cryptography
 
 # Size is 2048 MB, but encryption increases the file size by about 30%
-MAX_FILE_SIZE_MB = 1500
+MAX_FILE_SIZE_MB = 10
 MB_TO_BYTES = 1024 * 1024
 
 
