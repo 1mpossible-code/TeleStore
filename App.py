@@ -180,12 +180,13 @@ class App:
             uid (int): The unique identifier of the file to be deleted.
         """
         logging.info(f"Deleting file with UID: {uid}")
-        file_info = Files.get_file(uid)
-        if not file_info:
-            logging.error(f"File with UID {uid} not found.")
-            raise ValueError(f"File with UID {uid} not found.")
-        msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
-        for msg_id in msg_ids:
-            await self.bot.delete_file(msg_id)
+        # The telegram bot cannot delete messages that were sent more than 48 hours ago.
+        # file_info = Files.get_file(uid)
+        # if not file_info:
+        #     logging.error(f"File with UID {uid} not found.")
+        #     raise ValueError(f"File with UID {uid} not found.")
+        # msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
+        # for msg_id in msg_ids:
+        #     await self.bot.delete_file(msg_id)
         Files.remove_file(uid)
         logging.info(f"File with UID {uid} deleted from database and bot storage.")
