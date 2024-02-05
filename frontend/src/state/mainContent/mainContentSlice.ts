@@ -14,6 +14,10 @@ export interface Upload {
   size: number;
 }
 
+interface downloadArguments {
+  id: number;
+  name: string;
+}
 
 
 interface mainContentState {
@@ -21,6 +25,7 @@ interface mainContentState {
   message?:string;
   data: Upload[]; // Array of Upload objects
   error: ApiError | null; // Error state can be an ApiError object or null if there's no error
+  open:boolean;
 
 }
 
@@ -28,6 +33,7 @@ const initialState: mainContentState = {
   loading: true,
   data: [], // Initialize as an empty array
   error:null,
+  open:false,
 };
 
 
@@ -42,7 +48,14 @@ const mainContentSlice = createSlice({
     notLoading: (state) => {
       state.loading = false;
     },
-  },extraReducers:(builder) =>{
+    isOpen: (state) => {
+      state.open = true;
+    },
+    notOpen: (state) => {
+      state.open = false;
+    },
+  },
+  extraReducers: (builder) => {
     builder
       .addCase(getAsync.pending, (state) => {
         console.log('getAsync is pending...');
@@ -74,14 +87,17 @@ const mainContentSlice = createSlice({
         console.log('uploadAsync is pending...');
         state.loading = true;
       })
-      .addCase(
-        uploadAsync.fulfilled,
-        (state, action) => {
-          console.log('uploadAsync is fulfilled...');
-          state.loading = false;
-          state.data = [...state.data, action.payload]
-        }
-      );
+      .addCase(uploadAsync.fulfilled, (state, action) => {
+        console.log('uploadAsync is fulfilled...');
+        state.loading = false;
+        state.data = [...state.data, action.payload];
+      })
+      .addCase(downloadAsync.pending, () => {
+        console.log('downloadAsync is pending...');
+      })
+      .addCase(downloadAsync.fulfilled, () => {
+        console.log('download is fulfilled...');
+      });
   },
 });
 
@@ -103,10 +119,7 @@ export const deleteAsync = createAsyncThunk(
   }
 );
 
-interface downloadArguments {
-  id: number,
-  name: string,
-}
+
 
 export const downloadAsync = createAsyncThunk(
   'mainContentSlice/downloadAsync',
@@ -131,7 +144,7 @@ export const uploadAsync = createAsyncThunk(
 
 
 
-export const { isLoading,notLoading } =
+export const { isLoading,notLoading,isOpen,notOpen } =
   mainContentSlice.actions;
 
 export default mainContentSlice.reducer;
