@@ -1,6 +1,16 @@
 'use client';
 
 import * as React from 'react';
+
+//Component styling imports
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   ChevronDownIcon,
 } from '@radix-ui/react-icons';
@@ -17,23 +27,23 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Button } from '@/components/ui/button';
-import UploadDialog from './UploadDialog';
+// ui imports
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
+import UploadDialog from './UploadDialog';
+
+//Redux methods imports
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/state/store';
+import { deleteAsync,downloadAsync } from '@/state/mainContent/mainContentSlice';
+
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -43,6 +53,8 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const dispatch = useDispatch<AppDispatch>();
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -68,7 +80,15 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
-  });
+    
+});
+
+    const handleDeleteSelected = async (selected: Array<TData>) => {
+      for (let idx = 0; idx < selected.length ; idx++) {
+        //@ts-ignore
+        dispatch(deleteAsync(selected[idx]));
+      }
+    };
 
   return (
     <div className="w-full">
@@ -82,18 +102,6 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        <Button
-          onClick={() => {
-            const selectedFileIds = table
-              .getFilteredSelectedRowModel()
-              .rows.map((sel_row) => {
-                return sel_row.original; // TypeScript type assertion
-              });
-            console.log(selectedFileIds);
-          }}
-        >
-          Get Selected
-        </Button>
         <div className=" flex ml-auto space-x-4">
           <UploadDialog />
           <DropdownMenu>
@@ -174,11 +182,22 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
+      <div className="flex justify-between space-x-2 py-4">
+        <Button onClick={()=>{
+          const selected_id:Array<TData> = table.getFilteredSelectedRowModel().rows.map((sel_row) => {
+            // @ts-ignore
+            return sel_row.original.id;
+          });
+          handleDeleteSelected(selected_id);
+        }}
+        
+        >
+          <div className="flex-1 text-sm ">
+            {table.getFilteredSelectedRowModel().rows.length} of{' '}
+            {table.getFilteredRowModel().rows.length} row(s) selected
+          </div>{' '}
+        </Button>
+
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -201,4 +220,6 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
+
+
 
