@@ -11,3 +11,4 @@ files
 __pycache__
 .DS_Store
 .idea
+frontend/.vite
