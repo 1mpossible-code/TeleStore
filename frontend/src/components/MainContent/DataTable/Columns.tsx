@@ -129,7 +129,7 @@ export const columns: ColumnDef<Upload>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            <div className="flex h-8 justify-center pr-9 cursor-default hover:transition-colors hover:duration-150 hover:ease-in-out">
+            <div className="hover:bg-accent hover:text-accent-foreground flex h-8 justify-center pr-9 cursor-default hover:transition-colors hover:duration-150 hover:ease-in-out">
               <DeleteDialog Uid={Upload.id} />
             </div>
             <DropdownMenuSeparator />
