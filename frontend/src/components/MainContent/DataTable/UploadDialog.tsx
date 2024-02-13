@@ -10,10 +10,47 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+import { DownloadIcon } from '@radix-ui/react-icons';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import React, { useState, useRef } from 'react';
 
-import { InputFile } from './InputFile';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/state/store';
+import { getAsync, uploadAsync } from '@/state/mainContent/mainContentSlice';
 
 const UploadDialog = () => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [fileName,setFileName] = useState<string | null>(null);
+    const dispatch = useDispatch<AppDispatch>();
+    const fileInputRef = useRef<HTMLInputElement>(null); // Declare fileInputRef using useRef
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // get the selected file from the input
+      if (!e.target.files) {
+        return;
+      }
+      setSelectedFile(e.target.files[0]);
+      setFileName(e.target.files[0].name);
+    };
+
+      const handleSubmit = () => {
+        if (!selectedFile) return;
+        // create a new FormData object and append the file to it
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        // make a POST request to the File Upload API with the FormData object and Rapid API headers
+        dispatch(uploadAsync(formData));
+
+        // Clear the selected file after submission
+        setSelectedFile(null);
+        // Reset the input file
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        dispatch(getAsync());
+      };
 
   return (
     <AlertDialog>
@@ -24,15 +61,40 @@ const UploadDialog = () => {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Upload a file</AlertDialogTitle>
-          <AlertDialogDescription>
-            Select a file from your device or drag and drop!
-          </AlertDialogDescription>
+          <AlertDialogTitle>Upload New File</AlertDialogTitle>
+          <AlertDialogDescription></AlertDialogDescription>
         </AlertDialogHeader>
+        <div>
+          <label className="bg-inherit border-slate-500	" htmlFor="file_input">
+            <div className="text-center flex flex-col justify-between hover:opacity-50 hover:bg-accent border-dashed border-2 hover:text-accent-foreground bg-transparent transition-colors shadow-sm text-sm pt-12 pb-5 border-input rounded-md h-36 ">
+              <DownloadIcon className="scale-[4] w-full" />
+
+              {fileName ? (
+                <p className="text-sm font-semibold">{fileName}</p>
+              ) : (
+                <p className="text-sm font-semibold">
+                  Browse or drop your files here!
+                </p>
+              )}
+            </div>
+            <Input
+              id="file_input"
+              type="file"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+              className="hidden"
+            />
+          </label>
+        </div>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
-            <InputFile />
+            <Button
+              onClick={handleSubmit}
+              className="color-transition text-white hover:bg-gradient-to-r from-cyan-500 to-blue-500"
+            >
+              Upload
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
