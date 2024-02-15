@@ -39,9 +39,10 @@ import { Input } from '@/components/ui/input';
 
 import UploadDialog from './UploadDialog';
 
+
 //Redux methods imports
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/state/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/state/store';
 import { deleteAsync,downloadAsync } from '@/state/mainContent/mainContentSlice';
 
 
@@ -54,6 +55,7 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const dispatch = useDispatch<AppDispatch>();
+
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -87,6 +89,7 @@ export function DataTable<TData, TValue>({
       for (let idx = 0; idx < selected.length ; idx++) {
         //@ts-ignore
         dispatch(deleteAsync(selected[idx]));
+        setRowSelection({});
       }
     };
 
@@ -195,7 +198,7 @@ export function DataTable<TData, TValue>({
           <div className="flex-1 text-sm ">
             {table.getFilteredSelectedRowModel().rows.length} of{' '}
             {table.getFilteredRowModel().rows.length} row(s) selected
-          </div>{' '}
+          </div>
         </Button>
 
         <div className="space-x-2">
