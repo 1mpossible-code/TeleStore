@@ -66,7 +66,7 @@ export const columns: ColumnDef<Upload>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           className="pr-10"
         >
-          File ID
+          ID
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -82,7 +82,7 @@ export const columns: ColumnDef<Upload>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           
         >
-          File Name
+          Name
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -96,9 +96,8 @@ export const columns: ColumnDef<Upload>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className=''
         >
-          File Size
+          Size
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
