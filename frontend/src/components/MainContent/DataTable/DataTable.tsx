@@ -2,6 +2,18 @@
 
 import * as React from 'react';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 //Component styling imports
 import {
   Table,
@@ -11,9 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  ChevronDownIcon,
-} from '@radix-ui/react-icons';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -39,12 +49,14 @@ import { Input } from '@/components/ui/input';
 
 import UploadDialog from './UploadDialog';
 
-
 //Redux methods imports
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/state/store';
-import { deleteAsync,downloadAsync } from '@/state/mainContent/mainContentSlice';
-
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/state/store';
+import {
+  deleteAsync,
+  downloadAsync,
+} from '@/state/mainContent/mainContentSlice';
+import DeleteDialog from './DeleteDialog';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -55,7 +67,6 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const dispatch = useDispatch<AppDispatch>();
-
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -82,13 +93,19 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
-    
-});
+  });
 
-    const handleDeleteSelected = async (selected: Array<TData>) => {
-      for (let idx = 0; idx < selected.length ; idx++) {
+  const handleDeleteSelected = async (selected: Array<TData>) => {
+    for (let idx = 0; idx < selected.length; idx++) {
+      //@ts-ignore
+      dispatch(deleteAsync(selected[idx]));
+      setRowSelection({});
+    }
+  };
+    const handleDownloadSelected = async (selected:any) => {
+      for (let idx = 0; idx < selected.length; idx++) {
         //@ts-ignore
-        dispatch(deleteAsync(selected[idx]));
+        dispatch(downloadAsync({id:selected[idx][0], name:selected[idx][1]}));
         setRowSelection({});
       }
     };
@@ -104,7 +121,6 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-
         <div className=" flex ml-auto space-x-4">
           <UploadDialog />
           <DropdownMenu>
@@ -186,21 +202,72 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex justify-between space-x-2 py-4">
-        <Button onClick={()=>{
-          const selected_id:Array<TData> = table.getFilteredSelectedRowModel().rows.map((sel_row) => {
-            // @ts-ignore
-            return sel_row.original.id;
-          });
-          handleDeleteSelected(selected_id);
-        }}
-        
-        >
-          <div className="flex-1 text-sm ">
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
-            {table.getFilteredRowModel().rows.length} row(s) selected
-          </div>
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <div className="bg-[#3b82f6] py-2 px-4 rounded-md whitespace-nowrap items-center justify-center h-9 inline-flex hover:bg-primary 90:hover transition-colors shadow text-primary-foreground font-medium flex-1 text-sm ">
+              {table.getFilteredSelectedRowModel().rows.length} of{' '}
+              {table.getFilteredRowModel().rows.length} row(s) selected
+            </div>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Selected Actions</AlertDialogTitle>
+            </AlertDialogHeader>
 
+            {table.getFilteredSelectedRowModel().rows.length ? (
+              <>
+                <AlertDialogDescription>
+                  You currently have
+                  <b> {table.getFilteredSelectedRowModel().rows.length} </b>
+                  file(s) selected!
+                </AlertDialogDescription>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button
+                      className="transition-colors text-white bg-red-600 hover:bg-red-700 "
+                      onClick={() => {
+                        const selected_id: Array<TData> = table
+                          .getFilteredSelectedRowModel()
+                          .rows.map((sel_row) => {
+                            // @ts-ignore
+                            return sel_row.original.id;
+                          });
+                        handleDeleteSelected(selected_id);
+                      }}
+                    >
+                      Delete file(s)
+                    </Button>
+                  </AlertDialogAction>
+                  <AlertDialogAction asChild>
+                    <Button
+                      className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                      onClick={() => {
+                        const selected__tup = table
+                          .getFilteredSelectedRowModel()
+                          .rows.map((sel_row) => {
+                            // @ts-ignore
+                            return [sel_row.original.id, sel_row.original.name];
+                          });
+                        console.log(selected__tup);
+                        handleDownloadSelected(selected__tup);
+                      }}
+                    >
+                      Download file(s)
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </>
+            ) : (
+              <>
+                <AlertDialogDescription>
+                  Oops! Seems like you <b className='text-red-200'>haven't</b> selected any files yet...
+                </AlertDialogDescription>
+                <AlertDialogCancel>Exit</AlertDialogCancel>
+              </>
+            )}
+          </AlertDialogContent>
+        </AlertDialog>
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -223,6 +290,3 @@ export function DataTable<TData, TValue>({
     </div>
   );
 }
-
-
-
