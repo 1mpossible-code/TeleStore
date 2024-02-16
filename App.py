@@ -4,6 +4,7 @@ from Bot import Bot
 from Files import Files
 from FileManager import FileManager
 from Cryptography import Cryptography
+import re
 
 # Size is 2048 MB, but encryption increases the file size by about 30%
 MAX_FILE_SIZE_MB = 10
@@ -102,37 +103,39 @@ class App:
         file_ids = file_info[3].split(",")
         file_path = os.path.join(self.file_manager.files_dir, file_info[1])
 
-        with open(file_path, "wb") as file:
-            downloaded = []
-            for file_id in file_ids:
-                # save file part and decrypt it
-                logging.info(f"Downloading file part: {file_id}")
-                if not os.path.exists(f"{self.file_manager.temp_dir}/{file_info[1]}/"):
-                    os.makedirs(f"{self.file_manager.temp_dir}/{file_info[1]}/")
-                with open(
-                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}", "wb"
-                ) as f:
-                    f.write(await self.bot.get_file(file_id))
-                    downloaded.append(file_id)
-                logging.info(f"Decrypting file part: {file_id}")
-                print(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
-                self.cryptography.decrypt_file(
-                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}"
-                )
+        # with open(file_path, "wb") as file:
+        downloaded = []
+        for file_id in file_ids:
+            # save file part and decrypt it
+            logging.info(f"Downloading file part: {file_id}")
+            if not os.path.exists(f"{self.file_manager.temp_dir}/{file_info[1]}/"):
+                os.makedirs(f"{self.file_manager.temp_dir}/{file_info[1]}/")
+            with open(
+                f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}", "wb"
+            ) as f:
+                f.write(await self.bot.get_file(file_id))
+                downloaded.append(file_id)
+            logging.info(f"Decrypting file part: {file_id}")
+            print(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
+            self.cryptography.decrypt_file(
+                f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}"
+            )
 
-            # join file parts
-            logging.info("Joining file parts...")
-            # if windows, use copy /b command
-            if os.name == "nt":
-                os.system(
-                    f"copy /b {self.file_manager.temp_dir}/{file_info[1]}/* {file_path}"
-                )
-            else:
-                # if linux, use cat command
-                os.system(
-                    f"cat {self.file_manager.temp_dir}/{file_info[1]}/* > {file_path}"
-                )
-            logging.info("File parts joined.")
+        # join file parts
+        logging.info("Joining file parts...")
+        # if windows, use copy /b command
+        if os.name == "nt":
+            os.system(
+                f"copy /b \"{self.file_manager.temp_dir}/{file_info[1]}/*\" \"{file_path}\""
+            )
+        else:
+            # if linux, use cat command
+            path = f"{self.file_manager.temp_dir}/{file_info[1]}/*"
+            path = path.replace(' ', '\ ')
+            os.system(
+                f"cat {path} > \"{file_path}\""
+            )
+        logging.info("File parts joined.")
 
         logging.info(f"File downloaded: {file_path}")
         # clean up

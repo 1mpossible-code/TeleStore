@@ -57,7 +57,7 @@ class FileManager:
         """
         file_name = os.path.basename(file_path)
         split_command = (
-            f"split -b {chunk_size} {file_path} {self.temp_dir}/{file_name}_"
+            f"split -b {chunk_size} \"{file_path}\" \"{self.temp_dir}/{file_name}_\""
         )
         os.system(split_command)
         logging.info(f"File split using command: {split_command}")
