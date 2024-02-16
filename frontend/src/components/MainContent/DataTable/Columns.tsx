@@ -63,50 +63,53 @@ export const columns: ColumnDef<Upload>[] = [
       return (
         <Button
           variant="ghost"
+          className="w-15 ml-4"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="pr-10"
         >
           ID
-          <CaretSortIcon className="ml-2 h-4 w-4" />
+          <CaretSortIcon className="ml-4 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+    cell: ({ row }) => <div className="ml-7">{row.getValue('id')}</div>,
   },
   {
     accessorKey: 'name',
     header: ({ column }) => {
       return (
         <Button
+          className="mr-12"
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          
         >
           Name
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div >{row.getValue('name')}</div>,
+    cell: ({ row }) => <div className="ml-4 ">{row.getValue('name')}</div>,
   },
   {
     accessorKey: 'size',
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Size
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
+        <div className='w-full flex justify-end'>
+          
+          <Button
+            className="mr-5"
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Size
+            <CaretSortIcon className="ml-4 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
     cell: ({ row }) => {
       const size = parseFloat(row.getValue('size'));
       const formatted = formatBytes(size);
-
-      return <div className="text-right mr-5 font-medium">{formatted}</div>;
+      return <div className="text-right mr-full font-medium">{formatted}</div>;
     },
   },
   {
@@ -115,7 +118,6 @@ export const columns: ColumnDef<Upload>[] = [
     cell: ({ row }) => {
       const dispatch = useDispatch<AppDispatch>();
       const Upload = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -127,10 +129,9 @@ export const columns: ColumnDef<Upload>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-
-            <div className="hover:bg-accent hover:text-accent-foreground flex h-8 justify-center pr-9 cursor-default hover:transition-colors hover:duration-150 hover:ease-in-out">
-              <DeleteDialog Uid={Upload.id} />
-            </div>
+              <div className="hover:bg-accent hover:text-accent-foreground flex h-8 justify-center pr-9 cursor-default hover:transition-colors hover:duration-150 hover:ease-in-out">
+                <DeleteDialog Uid={Upload.id} />
+              </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
