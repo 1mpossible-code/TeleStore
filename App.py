@@ -4,7 +4,7 @@ from Bot import Bot
 from Files import Files
 from FileManager import FileManager
 from Cryptography import Cryptography
-import re
+import uuid
 
 # Size is 2048 MB, but encryption increases the file size by about 30%
 MAX_FILE_SIZE_MB = 10
@@ -101,7 +101,7 @@ class App:
             return
 
         file_ids = file_info[3].split(",")
-        temp_path = os.path.join(self.file_manager.temp_dir, 'join/')
+        temp_path = os.path.join(self.file_manager.temp_dir, str(uuid.uuid4()))
         file_path = os.path.join(self.file_manager.files_dir, file_info[1])
 
         # with open(file_path, "wb") as file:
