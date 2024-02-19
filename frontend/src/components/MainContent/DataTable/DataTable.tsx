@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import cn from "classnames";
 
 import {
   AlertDialog,
@@ -56,7 +57,6 @@ import {
   deleteAsync,
   downloadAsync,
 } from '@/state/mainContent/mainContentSlice';
-import DeleteDialog from './DeleteDialog';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -203,8 +203,17 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex justify-between space-x-2 py-4">
         <AlertDialog>
-          <AlertDialogTrigger>
-            <div className="bg-[#3b82f6] py-2 px-4 rounded-md whitespace-nowrap items-center justify-center h-9 inline-flex hover:bg-primary 90:hover transition-colors shadow text-primary-foreground font-medium flex-1 text-sm ">
+          <AlertDialogTrigger
+            disabled={!table.getFilteredSelectedRowModel().rows.length}
+          >
+            <div
+              className={cn(
+                !!table.getFilteredSelectedRowModel().rows.length
+                  ? 'bg-primary hover:bg-blue-400'
+                  : 'bg-secondary cursor-not-allowed ',
+                'py-2 px-4 rounded-md whitespace-nowrap items-center justify-center h-9 inline-flex shadow text-primary-foreground font-medium flex-1 text-sm '
+              )}
+            >
               {table.getFilteredSelectedRowModel().rows.length} of{' '}
               {table.getFilteredRowModel().rows.length} row(s) selected
             </div>
@@ -261,7 +270,8 @@ export function DataTable<TData, TValue>({
             ) : (
               <>
                 <AlertDialogDescription>
-                  Oops! Seems like you <b className='text-red-200'>haven't</b> selected any files yet...
+                  Oops! Seems like you <b className="text-red-200">haven't</b>{' '}
+                  selected any files yet...
                 </AlertDialogDescription>
                 <AlertDialogCancel>Exit</AlertDialogCancel>
               </>
