@@ -122,7 +122,7 @@ const UploadDialog = () => {
               <AlertDialogAction asChild>
                 <Button
                   onClick={handleSubmit}
-                  className="color-transition text-white hover:bg-gradient-to-r from-cyan-500 to-blue-500"
+                  className="color-transition bg-primary hover:bg-blue-400	 text-white "
                 >
                   Upload
                 </Button>
