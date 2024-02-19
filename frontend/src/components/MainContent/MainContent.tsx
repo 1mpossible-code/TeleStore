@@ -5,12 +5,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../state/store';
 import { getAsync } from '@/state/mainContent/mainContentSlice';
 import { useEffect } from 'react';
+import SkeletonPage from './SkeletonPage';
 
 
 
 const MainContent = () => {
   const data = useSelector((state: RootState) => state.mainContent.data);
-  const isLoading = useSelector((state: RootState) => state.mainContent.loading);
+  const isFetching = useSelector(
+    (state: RootState) => state.mainContent.Fetching
+  );
   const error = useSelector((state: RootState) => state.mainContent.error);
 
 
@@ -22,8 +25,8 @@ const MainContent = () => {
   if (error) {
     return <div>Error: {error.message}</div>;
   }
-  return isLoading ? (
-    <h1>Loading</h1>
+  return isFetching ? (
+    <SkeletonPage/>
   ) : (
     <div className="margin-auto mx-24	">
       <DataTable columns={columns} data={data} />
