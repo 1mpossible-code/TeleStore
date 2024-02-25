@@ -20,6 +20,7 @@ class FileManager:
         clean_temp_directory(): Cleans up the temporary directory.
         clean_file_directory(): Cleans up the temporary directory.
     """
+
     def __init__(self, temp_dir, files_dir):
         """Manage file operations, ensuring directories are set up correctly."""
         self.temp_dir = temp_dir
@@ -57,7 +58,7 @@ class FileManager:
         """
         file_name = os.path.basename(file_path)
         split_command = (
-            f"split -b {chunk_size} \"{file_path}\" \"{self.temp_dir}/{file_name}_\""
+            f'split -b {chunk_size} "{file_path}" "{self.temp_dir}/{file_name}_"'
         )
         os.system(split_command)
         logging.info(f"File split using command: {split_command}")
@@ -65,15 +66,14 @@ class FileManager:
             os.path.join(self.temp_dir, f) for f in sorted(os.listdir(self.temp_dir))
         ]
 
-    def clean_temp_directory(self):
+    def clean_temp_directory(self, path="*"):
         """Clean up the temporary directory."""
-        cleanup_command = f"rm -rf {self.temp_dir}/*"
+        cleanup_command = f"rm -rf {self.temp_dir}/{path}"
         os.system(cleanup_command)
         logging.info(f"Temporary directory cleaned with command: {cleanup_command}")
-    
-    def clean_files_directory(self):
+
+    def clean_files_directory(self, path="*"):
         """Clean up the file directory."""
-        cleanup_command = f"rm -rf {self.files_dir}/*"
+        cleanup_command = f"rm -rf {self.files_dir}/{path}"
         os.system(cleanup_command)
         logging.info(f"Files directory cleaned with command: {cleanup_command}")
-        

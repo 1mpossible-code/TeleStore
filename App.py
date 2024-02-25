@@ -65,7 +65,8 @@ class App:
         msg_ids, file_ids = await self._send_multiple_files(split_files)
         Files.insert_file(os.path.basename(file_path), msg_ids, file_ids, size)
         logging.info("Large file successfully sent and recorded in the database.")
-        self.file_manager.clean_temp_directory()
+        file_name = os.path.basename(file_path)
+        self.file_manager.clean_temp_directory(f"{file_name}*")
 
     async def _send_multiple_files(self, file_paths):
         """Send multiple files and return message and file IDs.

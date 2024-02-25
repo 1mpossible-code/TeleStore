@@ -34,7 +34,7 @@ class UploadsController:
         asyncio.run(self.app.download_file(uid))
         res = send_from_directory(
             self.app.file_manager.files_dir, file_info[1], as_attachment=True)
-        self.app.file_manager.clean_files_directory()
+        self.app.file_manager.clean_files_directory(file_info[1])
         return res
 
     def __read_all(self):
@@ -131,7 +131,7 @@ class UploadsController:
         file_dict = {'id': new_file[0], 'name': new_file[1],
                      'message_ids': new_file[2], 'file_ids': new_file[3],
                      'size': new_file[4]}
-        self.app.file_manager.clean_files_directory()
+        self.app.file_manager.clean_files_directory(new_file[1])
         return jsonify(file_dict), 200
 
     def delete(self, uid: int):
