@@ -68,12 +68,14 @@ class FileManager:
 
     def clean_temp_directory(self, path="*"):
         """Clean up the temporary directory."""
-        cleanup_command = f"rm -rf {self.temp_dir}/{path}"
+        fp = os.path.join(self.temp_dir, path)
+        cleanup_command = f"rm -rf \"{fp}\""
         os.system(cleanup_command)
         logging.info(f"Temporary directory cleaned with command: {cleanup_command}")
 
     def clean_files_directory(self, path="*"):
         """Clean up the file directory."""
-        cleanup_command = f"rm -rf {self.files_dir}/{path}"
+        fp = os.path.join(self.files_dir, path)
+        cleanup_command = f"rm -rf \"{fp}\""
         os.system(cleanup_command)
         logging.info(f"Files directory cleaned with command: {cleanup_command}")
