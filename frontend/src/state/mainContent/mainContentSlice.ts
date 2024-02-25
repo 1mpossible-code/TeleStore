@@ -59,7 +59,7 @@ const mainContentSlice = createSlice({
       .addCase(getAsync.fulfilled, (state, action: PayloadAction<Upload[]>) => {
         console.log('getAsync is fulfilled!');
         state.Fetching = false;
-        state.data = action.payload;
+        state.data = action.payload.reverse();
         state.status = 'succeeded';
       })
       .addCase(getAsync.rejected, (state, action) => {
