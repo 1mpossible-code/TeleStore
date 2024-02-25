@@ -12,70 +12,91 @@ import {
 import { DownloadIcon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, DragEvent} from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/state/store';
-import { getAsync, uploadAsync } from '@/state/mainContent/mainContentSlice';
-import { FileIcon } from 'lucide-react';
+import { uploadAsync } from '@/state/mainContent/mainContentSlice';
+import { FileIcon, Upload } from 'lucide-react';
+import cn from 'classnames'
 
 const UploadDialog = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const isLoading = useSelector(
-    (state: RootState) => state.mainContent.loading
-  );
-
-  const dispatch = useDispatch<AppDispatch>();
+  const isFetching = useSelector((state: RootState) => state.mainContent.Fetching);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null); // Declare fileInputRef using useRef
+  const dispatch = useDispatch<AppDispatch>();
+  const [isOver, setIsOver] = useState(false);
+
+
+  const setFiles = (newFiles: FileList | null) => {
+    if (!newFiles) return;
+    const filesArray: File[] = Array.from(newFiles);
+
+    setSelectedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+    setFileNames((prevNames) => [
+      ...prevNames,
+      ...filesArray.map((file) => file.name),
+    ]);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     // get the selected file from the input
     if (!e.target.files) {
       return;
     }
-    setSelectedFile(e.target.files[0]);
-    setFileName(e.target.files[0].name);
+    setFiles(e.target.files);
   };
 
   const handleSubmit = () => {
-    if (!selectedFile) return;
-    // create a new FormData object and append the file to it
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+    if (!selectedFiles.length) return;
 
-    // make a POST request to the File Upload API with the FormData object and Rapid API headers
-    dispatch(uploadAsync(formData));
+    selectedFiles.forEach((file) => {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    // Clear the selected file after submission
-    setSelectedFile(null);
-    // Reset the input file
+      dispatch(uploadAsync(formData));
+    });
+
+    //Reset files
+    setSelectedFiles([]);
+    setFileNames([]);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    dispatch(getAsync());
   };
 
-  const handleDragOver = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  // Define the event handlers
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log(e);
-    return e;
+    setIsOver(true);
   };
 
-  const handleDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    console.log(e);
+    setIsOver(false);
   };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsOver(false);
+
+    setFiles(e.dataTransfer.files)
+  };
+
+
 
   return (
     <>
-      {isLoading ? (
+      {isFetching ? (
         <h1>pending</h1>
       ) : (
         <AlertDialog>
           <AlertDialogTrigger>
             <div className=" text-xl text-000 inline-flex items-center justify-center whitespace-nowrap rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-3 py-1">
-              +
+              <Upload />
             </div>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -87,12 +108,22 @@ const UploadDialog = () => {
                 className="bg-inherit border-slate-500	"
                 htmlFor="file_input"
               >
-                <div className="transition-all text-center flex flex-col justify-between hover:opacity-50 hover:bg-accent border-dashed border-2 hover:text-accent-foreground bg-transparent shadow-sm text-sm pt-12 pb-5 border-input rounded-md h-36 ">
-                  {fileName ? (
-                    <>
+                <div
+                  className={cn(isOver?"opacity-50 bg-accent text-accent-foreground":"","transition-all text-center flex flex-col justify-between hover:opacity-50 hover:bg-accent border-dashed border-2 hover:text-accent-foreground bg-transparent shadow-sm text-sm pt-12 pb-5 border-input rounded-md h-36 ")}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  {fileNames.length > 0 ? (
+                    <div>
                       <FileIcon className="scale-[2] w-full" />
-                      <p className="text-sm font-semibold">{fileName}</p>
-                    </>
+                      {/* Here I'm going to add an accordian to see the files that were uploaded inside that accorddian to keep a clean UI */}
+                      {fileNames.map((name: string, FileId) => (
+                        <p className="text-sm font-semibold" key={FileId}>
+                          {name}
+                        </p>
+                      ))}
+                    </div>
                   ) : (
                     <>
                       <DownloadIcon className="scale-[4] w-full" />
@@ -105,6 +136,7 @@ const UploadDialog = () => {
                 <Input
                   id="file_input"
                   type="file"
+                  multiple
                   onChange={handleFileUpload}
                   ref={fileInputRef}
                   className="hidden"
@@ -114,7 +146,7 @@ const UploadDialog = () => {
             <AlertDialogFooter>
               <AlertDialogCancel
                 onClick={() => {
-                  setFileName(null);
+                  setFileNames([]);
                 }}
               >
                 Cancel
@@ -134,5 +166,4 @@ const UploadDialog = () => {
     </>
   );
 };
-
 export default UploadDialog;
