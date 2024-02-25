@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    port: 3000, 
+    port: 4000,
   },
   plugins: [react()],
   resolve: {
@@ -12,4 +12,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    exclude: ['js-big-decimal']
+  }
 });
