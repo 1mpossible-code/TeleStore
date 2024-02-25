@@ -138,8 +138,7 @@ export const uploadAsync = createAsyncThunk(
   'mainContentSlice/uploadAsync',
   async (formData: FormData)=> {
     const url = `http://127.0.0.1:3000/uploads/`;
-    const headers = { 'Content-Type': 'multipart/form-data' };
-    const res = await axios.post(url, formData, { headers });
+    const res = await axios.post(url, formData); 
     return res.data;
   }
 );
