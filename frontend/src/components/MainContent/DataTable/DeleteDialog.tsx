@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
 import { deleteAsync } from '@/state/mainContent/mainContentSlice';
@@ -37,17 +37,23 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({ Uid }) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              className="bg-red-600 hover:bg-red-500 text-white	"
-              onClick={async () => {
-                dispatch(deleteAsync(Uid));
-              }}
-            >
-              Yes, delete file
-            </Button>
-          </AlertDialogAction>
+          <DropdownMenuItem asChild>
+            <AlertDialogCancel>
+              Cancel
+            </AlertDialogCancel>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="bg-red-600 hover:bg-red-500">
+            <AlertDialogAction asChild className="">
+              <Button
+                className="bg-red-600 hover:bg-red-500 text-white	"
+                onClick={async () => {
+                  dispatch(deleteAsync(Uid));
+                }}
+              >
+                Yes, delete file
+              </Button>
+            </AlertDialogAction>
+          </DropdownMenuItem>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
