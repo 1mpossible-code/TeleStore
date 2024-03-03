@@ -90,6 +90,7 @@ const mainContentSlice = createSlice({
         console.log('uploadAsync is fulfilled...');
         state.Fetching = false;
         state.data = [...state.data, action.payload];
+        state.data = action.payload.sorted().reverse();
         state.status = 'succeeded';
       })
       .addCase(downloadAsync.pending, (state) => {
