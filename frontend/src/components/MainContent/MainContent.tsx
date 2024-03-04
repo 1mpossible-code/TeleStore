@@ -30,6 +30,7 @@ const MainContent = () => {
   ) : (
     <div className="margin-auto mx-24	">
       <DataTable columns={columns} data={data} />
+
     </div>
   );
 };

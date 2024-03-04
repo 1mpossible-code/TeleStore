@@ -16,7 +16,7 @@ import React, {useState, useRef, DragEvent} from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/state/store';
-import { uploadAsync } from '@/state/mainContent/mainContentSlice';
+import {setSelected, uploadAsync} from '@/state/mainContent/mainContentSlice';
 import { FileIcon, Upload } from 'lucide-react';
 import cn from 'classnames'
 
@@ -50,6 +50,7 @@ const UploadDialog = () => {
 
   const handleSubmit = () => {
     if (!selectedFiles.length) return;
+    dispatch(setSelected(selectedFiles.length))
 
     selectedFiles.forEach((file) => {
       const formData = new FormData();

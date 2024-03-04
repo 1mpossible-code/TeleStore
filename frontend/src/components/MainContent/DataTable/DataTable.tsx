@@ -55,7 +55,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
 import {
   deleteAsync,
-  downloadAsync,
+  downloadAsync, incrementAction, setSelected,
 } from '@/state/mainContent/mainContentSlice';
 
 interface DataTableProps<TData, TValue> {
@@ -99,13 +99,16 @@ export function DataTable<TData, TValue>({
     for (let idx = 0; idx < selected.length; idx++) {
       //@ts-ignore
       dispatch(deleteAsync(selected[idx]));
+      dispatch(incrementAction());
       setRowSelection({});
+
     }
   };
     const handleDownloadSelected = async (selected:any) => {
       for (let idx = 0; idx < selected.length; idx++) {
         //@ts-ignore
         dispatch(downloadAsync({id:selected[idx][0], name:selected[idx][1]}));
+        dispatch(incrementAction());
         setRowSelection({});
       }
     };
@@ -223,7 +226,7 @@ export function DataTable<TData, TValue>({
               <AlertDialogTitle>Selected Actions</AlertDialogTitle>
             </AlertDialogHeader>
 
-            {table.getFilteredSelectedRowModel().rows.length ? (
+
               <>
                 <AlertDialogDescription>
                   You currently have
@@ -236,6 +239,7 @@ export function DataTable<TData, TValue>({
                     <Button
                       className="transition-colors text-white bg-red-600 hover:bg-red-700 "
                       onClick={() => {
+                        dispatch(setSelected(table.getFilteredSelectedRowModel().rows.length))
                         const selected_id: Array<TData> = table
                           .getFilteredSelectedRowModel()
                           .rows.map((sel_row) => {
@@ -252,6 +256,7 @@ export function DataTable<TData, TValue>({
                     <Button
                       className="bg-indigo-500 hover:bg-indigo-600 text-white"
                       onClick={() => {
+                        dispatch(setSelected(table.getFilteredSelectedRowModel().rows.length))
                         const selected__tup = table
                           .getFilteredSelectedRowModel()
                           .rows.map((sel_row) => {
@@ -267,15 +272,7 @@ export function DataTable<TData, TValue>({
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </>
-            ) : (
-              <>
-                <AlertDialogDescription>
-                  Oops! Seems like you <b className="text-red-200">haven't</b>{' '}
-                  selected any files yet...
-                </AlertDialogDescription>
-                <AlertDialogCancel>Exit</AlertDialogCancel>
-              </>
-            )}
+
           </AlertDialogContent>
         </AlertDialog>
         <div className="space-x-2">
