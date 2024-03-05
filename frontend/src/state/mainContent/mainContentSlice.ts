@@ -29,11 +29,6 @@ interface mainContentState {
     showToast:boolean;
     selectedAmt:number;
     actionCounter:number;
-
-
-
-
-
 }
 
 const initialState: mainContentState = {
@@ -96,6 +91,7 @@ const mainContentSlice = createSlice({
                 state.data = state.data.filter(
                     (upload) => upload.id !== action.meta.arg
                 );
+
                 if (state.selectedAmt ){
                     if(state.selectedAmt === state.actionCounter){
                         state.showToast = true;
@@ -115,12 +111,24 @@ const mainContentSlice = createSlice({
             .addCase(uploadAsync.fulfilled, (state, action) => {
                 console.log('uploadAsync is fulfilled...');
                 state.data = [action.payload, ...state.data];
-                state.showToast = true;
-                state.status = 'Successfully uploaded file!';
+
+                if (state.selectedAmt ){
+                    if(state.selectedAmt === state.actionCounter){
+                        state.showToast = true;
+                        state.status = `Successfully uploaded ${state.selectedAmt} file(s)!`
+                        state.actionCounter = 0
+                    }
+                }else{
+                    state.showToast = true;
+                    state.status = `Successfully uploaded a file!`;
+                }
             })
             .addCase(downloadAsync.pending, (state) => {
                 console.log('downloadAsync is pending...');
                 state.status = 'loading';
+                state.showToast = true;
+                state.status = "Downloading fil(e)s..."
+
             })
             .addCase(downloadAsync.fulfilled, (state) => {
                 console.log('download is fulfilled...');
