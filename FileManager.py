@@ -1,5 +1,7 @@
 import logging
 import os
+import uuid
+import glob
 
 
 class FileManager:
@@ -56,26 +58,34 @@ class FileManager:
         Returns:
             list: A list of paths to the split files.
         """
-        file_name = os.path.basename(file_path)
+        file_name = str(uuid.uuid4())
         split_command = (
             f'split -b {chunk_size} "{file_path}" "{self.temp_dir}/{file_name}_"'
         )
         os.system(split_command)
         logging.info(f"File split using command: {split_command}")
         return [
-            os.path.join(self.temp_dir, f) for f in sorted(os.listdir(self.temp_dir))
-        ]
+            os.path.join(self.temp_dir, f) for f in sorted(os.listdir(self.temp_dir)) if f.find(file_name) != -1
+        ], file_name
 
     def clean_temp_directory(self, path="*"):
         """Clean up the temporary directory."""
-        fp = os.path.join(self.temp_dir, path)
-        cleanup_command = f"rm -rf \"{fp}\""
-        os.system(cleanup_command)
-        logging.info(f"Temporary directory cleaned with command: {cleanup_command}")
+        fp = os.path.join('.', self.temp_dir, path)
+        for fp in glob.glob(fp):
+            try:
+                os.remove(fp)
+                print(f"Deleted: {fp}")
+            except Exception as e:
+                print(f"Could not delete {fp}. Error: {e}")
+        logging.info(f"Temporary directory cleaned with command path {fp}")
 
     def clean_files_directory(self, path="*"):
         """Clean up the file directory."""
-        fp = os.path.join(self.files_dir, path)
-        cleanup_command = f"rm -rf \"{fp}\""
-        os.system(cleanup_command)
-        logging.info(f"Files directory cleaned with command: {cleanup_command}")
+        fp = os.path.join('.', self.files_dir, path)
+        for fp in glob.glob(fp):
+            try:
+                os.remove(fp)
+                print(f"Deleted: {fp}")
+            except Exception as e:
+                print(f"Could not delete {fp}. Error: {e}")
+        logging.info(f"Files directory cleaned with command path {fp}")

@@ -59,14 +59,13 @@ class App:
         logging.info(f"Sending file: {file_path}")
         size = os.path.getsize(file_path)
         logging.info("Splitting the large file...")
-        split_files = self.file_manager.split_file(
+        split_files, new_fn = self.file_manager.split_file(
             file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES
         )
         msg_ids, file_ids = await self._send_multiple_files(split_files)
         Files.insert_file(os.path.basename(file_path), msg_ids, file_ids, size)
         logging.info("Large file successfully sent and recorded in the database.")
-        # file_name = os.path.basename(file_path)
-        # self.file_manager.clean_temp_directory(f"{file_name}*")
+        self.file_manager.clean_temp_directory(f"{new_fn}*")
 
     async def _send_multiple_files(self, file_paths):
         """Send multiple files and return message and file IDs.
@@ -86,10 +85,6 @@ class App:
             msg_id, file_id = await self.bot.send_file(file)
             msg_ids.append(msg_id)
             file_ids.append(file_id)
-            if os.path.exists(file):
-                os.remove(file)
-            else:
-                logging.warning(f"File {file} not found for deletion.")
         return msg_ids, file_ids
 
     async def download_file(self, uid: int) -> None:
