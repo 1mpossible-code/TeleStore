@@ -1,7 +1,7 @@
 import os
 import logging
 import requests
-from time import sleep
+import asyncio
 
 from typing import Tuple
 
@@ -9,14 +9,14 @@ from telegram.ext import Application
 
 # Decorator to track errors. if more than 3 errors occur, raise an exception
 def error_handler(func):
-    def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs):
         error_count = 0
         while error_count < 3:
             try:
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
             except Exception as e:
                 error_count += 1
-                sleep(3)
+                await asyncio.sleep(5)
                 logging.error(f"Error in {func.__name__}: {e}")
         raise Exception(f"Failed to execute {func.__name__}")
     return wrapper
