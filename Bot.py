@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+from time import sleep
 
 from typing import Tuple
 
@@ -15,6 +16,7 @@ def error_handler(func):
                 return func(*args, **kwargs)
             except Exception as e:
                 error_count += 1
+                sleep(3)
                 logging.error(f"Error in {func.__name__}: {e}")
         raise Exception(f"Failed to execute {func.__name__}")
     return wrapper
