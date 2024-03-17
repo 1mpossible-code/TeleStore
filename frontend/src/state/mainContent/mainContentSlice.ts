@@ -21,24 +21,26 @@ interface downloadArguments {
 
 
 interface mainContentState {
+    validUser:boolean;
     Fetching: boolean;
     message?: string;
     data: Upload[]; // Array of Upload objects
     error: ApiError | null; // Error state can be an ApiError object or null if there's no error
     status: string;
-    showToast:boolean;
-    selectedAmt:number;
-    actionCounter:number;
+    showToast: boolean;
+    selectedAmt: number;
+    currFile: string;
 }
 
 const initialState: mainContentState = {
+    validUser:false,
     Fetching: true,
     data: [], // Initialize as an empty array
     error: null,
     status: 'idle',
-    showToast:false,
-    selectedAmt:0,
-    actionCounter:0
+    showToast: false,
+    selectedAmt: 0,
+    currFile: '',
 };
 
 
@@ -46,16 +48,14 @@ const mainContentSlice = createSlice({
     name: 'mainContent',
     initialState,
     reducers: {
-        isFetching: (state) => {
-            state.Fetching = true;
-        },
         setToast: (state) => {
             state.showToast = false;
         },
-        setSelected:(state,action:PayloadAction<number>)=>{
+        setSelected: (state, action: PayloadAction<number>) => {
             state.selectedAmt = action.payload;
-        },incrementAction(state){
-            state.actionCounter += 1;
+        },
+        setValidUser:(state) =>{
+            state.validUser = true;
         }
 
     },
@@ -92,13 +92,10 @@ const mainContentSlice = createSlice({
                     (upload) => upload.id !== action.meta.arg
                 );
 
-                if (state.selectedAmt ){
-                    if(state.selectedAmt === state.actionCounter){
+                if (state.selectedAmt) {
                         state.showToast = true;
                         state.status = `Successfully removed ${state.selectedAmt} file(s)!`
-                        state.actionCounter = 0
-                    }
-                }else{
+                } else {
                     state.showToast = true;
                     state.status = `Successfully removed a file!`;
                 }
@@ -112,28 +109,25 @@ const mainContentSlice = createSlice({
                 console.log('uploadAsync is fulfilled...');
                 state.data = [action.payload, ...state.data];
 
-                if (state.selectedAmt ){
-                    if(state.selectedAmt === state.actionCounter){
+                if (state.selectedAmt) {
                         state.showToast = true;
                         state.status = `Successfully uploaded ${state.selectedAmt} file(s)!`
-                        state.actionCounter = 0
-                    }
-                }else{
+
+                } else {
                     state.showToast = true;
                     state.status = `Successfully uploaded a file!`;
                 }
             })
-            .addCase(downloadAsync.pending, (state) => {
+            .addCase(downloadAsync.pending, (state,action,) => {
                 console.log('downloadAsync is pending...');
-                state.status = 'loading';
                 state.showToast = true;
-                state.status = "Downloading fil(e)s..."
+                state.status = `Downloading ${action.payload}...`;
 
             })
-            .addCase(downloadAsync.fulfilled, (state) => {
+            .addCase(downloadAsync.fulfilled, (state, action) => {
                 console.log('download is fulfilled...');
                 state.showToast = true;
-                state.status = state.selectedAmt ? `Successfully downloaded ${state.selectedAmt} file(s)!` : `Successfully downloaded file!`;
+                state.status = `Successfully downloaded file ${action.payload}!`;
             });
     },
 });
@@ -165,6 +159,7 @@ export const downloadAsync = createAsyncThunk(
             responseType: "blob",
         });
         download(blob, name)
+        return name;
     }
 );
 
@@ -177,8 +172,21 @@ export const uploadAsync = createAsyncThunk(
     }
 );
 
+export const validateUser = createAsyncThunk(
+    'mainContentSlice/validateUser',
+    async (formData: object) => {
+        const url = `http://127.0.0.1:3000/`;
+        const res = await axios.post(url, formData,{
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return res.data;
+    }
+);
 
-export const {isFetching, setToast,setSelected,incrementAction} =
+
+export const {setToast, setSelected,setValidUser} =
     mainContentSlice.actions;
 
 export default mainContentSlice.reducer;

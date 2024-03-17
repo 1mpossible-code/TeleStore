@@ -3,9 +3,10 @@ import asyncio
 
 # Third Party Import
 from dotenv import load_dotenv
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,jsonify
 from flask_cors import CORS
 import logging
+
 
 # Local Application Import
 from UploadsController import UploadsController
@@ -34,9 +35,15 @@ CORS(app)
 def home():
     return render_template('home.html')
 
+# Route to validate user's Bot Token and ChatID
+@app.route('/',methods=['GET','POST'])
+def validate_user():
+    if request.method =='POST':
+        data = request.form
+        return jsonify(data), 200
+
+
 # Routes for handling file uploads. Supports GET, POST, and DELETE methods.
-
-
 @app.route('/uploads/', methods=['GET', 'POST'])
 @app.route('/uploads/<int:uid>', methods=['GET', 'DELETE'])
 def handle_uploads(uid=None):
