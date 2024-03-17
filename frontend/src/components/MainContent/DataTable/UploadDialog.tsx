@@ -17,7 +17,7 @@ import React, {useState, useRef, DragEvent} from 'react';
 
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '@/state/store';
-import {incrementAction, setSelected, uploadAsync} from '@/state/mainContent/mainContentSlice';
+import { setSelected, uploadAsync} from '@/state/mainContent/mainContentSlice';
 import {FileIcon, Upload} from 'lucide-react';
 import cn from 'classnames'
 
@@ -37,7 +37,7 @@ const UploadDialog = () => {
     }
 
     const handleSelectedDelete = (rm_idx: number) => {
-        const filteredArray = selectedFiles.filter((element, index) => index !== rm_idx);
+        const filteredArray = selectedFiles.filter((file, index) => index !== rm_idx);
         setSelectedFiles(filteredArray);
         setFileNames(filteredArray.map((file) => file.name));
         console.log(filteredArray);
@@ -73,8 +73,6 @@ const UploadDialog = () => {
             formData.append('file', file);
 
             dispatch(uploadAsync(formData));
-            dispatch(incrementAction());
-
         });
 
         //Reset files

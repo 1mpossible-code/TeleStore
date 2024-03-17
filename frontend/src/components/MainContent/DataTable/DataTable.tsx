@@ -55,7 +55,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
 import {
   deleteAsync,
-  downloadAsync, incrementAction, setSelected,
+  downloadAsync, setSelected,
 } from '@/state/mainContent/mainContentSlice';
 
 interface DataTableProps<TData, TValue> {
@@ -99,16 +99,13 @@ export function DataTable<TData, TValue>({
     for (let idx = 0; idx < selected.length; idx++) {
       //@ts-ignore
       dispatch(deleteAsync(selected[idx]));
-      dispatch(incrementAction());
       setRowSelection({});
-
     }
   };
     const handleDownloadSelected = async (selected:any) => {
       for (let idx = 0; idx < selected.length; idx++) {
         //@ts-ignore
         dispatch(downloadAsync({id:selected[idx][0], name:selected[idx][1]}));
-        dispatch(incrementAction());
         setRowSelection({});
       }
     };
