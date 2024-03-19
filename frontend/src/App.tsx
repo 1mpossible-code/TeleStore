@@ -7,7 +7,7 @@ import './App.css';
 import {useSelector} from "react-redux";
 import {RootState} from "@/state/store";
 
-import {UserInfo} from "@/UserInfo";
+import {UserInfo} from "@/components/UserInfo";
 
 
 const App = () => {
