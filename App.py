@@ -4,6 +4,7 @@ from Bot import Bot
 from Files import Files
 from FileManager import FileManager
 from Cryptography import Cryptography
+from Secret import Secret
 import uuid
 
 # Size is 2048 MB, but encryption increases the file size by about 30%
@@ -35,12 +36,12 @@ class App:
     def __init__(self) -> None:
         """Initialize the application with bot, database, and file management components."""
         # We get the token and chat ID from environment variables.
-        token = os.getenv("TOKEN")
-        chat_id = os.getenv("CHAT_ID")
+        secret = Secret()
+        token = secret["token"]
+        chat_id = secret["chat_id"]
 
         # Now we optionally get the database name, temp directory, and files directory from environment variables.
         # If they are not set, we use the default values.
-        db_name = os.getenv("DB_NAME") or "db.sqlite"
         temp_dir = os.getenv("TEMP_DIR") or "temp"
         files_dir = os.getenv("FILES_DIR") or "files"
 
