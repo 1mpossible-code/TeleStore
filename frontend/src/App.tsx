@@ -10,21 +10,17 @@ import {RootState} from "@/state/store";
 import {UserInfo} from "@/UserInfo";
 
 
-
 const App = () => {
     const isValid = useSelector((state: RootState) => state.mainContent.validUser);
     return (
         <div>
             <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                <Header/>
                 {isValid ?
-                    <div>
-                        <Header/>
-                        <MainContent/>
-                        <Footer/>
-                        <Toaster/>
-                    </div> :
+                    <MainContent/> :
                     <UserInfo/>}
-
+                <Footer/>
+                <Toaster/>
             </ThemeProvider>
         </div>)
 
