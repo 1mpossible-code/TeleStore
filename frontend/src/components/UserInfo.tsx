@@ -36,6 +36,7 @@ export const UserInfo = () => {
 
         return (<div>
                 <form onSubmit={handleSubmit}>
+                    <label htmlFor="token">Token</label>
                     <Input
                         id={'token'}
                         required={true}
@@ -46,6 +47,7 @@ export const UserInfo = () => {
                         value={telegramInfo.token}
                     />
                     <br/>
+                    <label htmlFor="ChatID">ChatID</label>
                     <Input
                         id={'ChatID'}
                         placeholder={'Please input your ChatID...'}
