@@ -5,7 +5,8 @@ import os
 class Secret:
     def __init__(self) -> None:
         if not os.path.exists('secret.json'):
-            os.mknod('secret.json')
+            with open('secret.json', 'w') as f:
+                json.dump({"token": "", "chat_id": ""}, f)
 
         with open('secret.json', 'r') as f:
             __secret = json.load(f)

@@ -26,5 +26,6 @@ async def main() -> None:
     app = App()
     print(await app.get_all_files_info())
 
+
 if __name__ == "__main__":
     asyncio.run(main())

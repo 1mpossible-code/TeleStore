@@ -44,7 +44,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def main() -> None:
     """Start the bot."""
-    application = Application.builder().token(os.getenv("TOKEN")).build()
+    application = Application.builder().token(Secret()["token"]).build()
 
     application.add_handler(CommandHandler("start", start))
 
