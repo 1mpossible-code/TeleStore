@@ -40,7 +40,6 @@ class App:
 
         # Now we optionally get the database name, temp directory, and files directory from environment variables.
         # If they are not set, we use the default values.
-        db_name = os.getenv("DB_NAME") or "db.sqlite"
         temp_dir = os.getenv("TEMP_DIR") or "temp"
         files_dir = os.getenv("FILES_DIR") or "files"
 
