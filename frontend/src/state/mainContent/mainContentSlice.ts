@@ -172,18 +172,7 @@ export const uploadAsync = createAsyncThunk(
     }
 );
 
-export const validateUser = createAsyncThunk(
-    'mainContentSlice/validateUser',
-    async (formData: object) => {
-        const url = `http://127.0.0.1:3000/`;
-        const res = await axios.post(url, formData,{
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        return res.data;
-    }
-);
+
 
 
 export const {setToast, setSelected,setValidUser} =
