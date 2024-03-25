@@ -5,12 +5,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import cn from 'classnames';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '@/state/store';
+
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/state/store';
+import {
+  setValidfalse,
+  setValidtrue,
+} from '@/state/mainContent/mainContentSlice';
 
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -20,13 +30,19 @@ export const UserInfo = () => {
     token: '',
     chat_id: '',
   });
+  const dispatch = useDispatch<AppDispatch>();
+
+  const isValid = useSelector(
+    (state: RootState) => state.mainContent.validUser
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-      setTelegramInfo((prevState) => ({
-        ...prevState,
-        token: value,
-      }));  };
+    setTelegramInfo((prevState) => ({
+      ...prevState,
+      token: value,
+    }));
+  };
 
   const handleSave = () => {
     const { token, chat_id } = telegramInfo;
@@ -52,13 +68,14 @@ export const UserInfo = () => {
         ...prevState,
         chat_id: res.data.chat_id,
       }));
+      dispatch(setValidtrue());
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <Dialog defaultOpen={!telegramInfo.chat_id}>
+    <Dialog defaultOpen={!isValid}>
       <DialogContent
         className="sm:max-w-[425px]"
         onEscapeKeyDown={(e) => {
@@ -95,9 +112,7 @@ export const UserInfo = () => {
           </div>
           <div
             className={cn(
-              telegramInfo.chat_id
-                ? 'grid grid-cols-4 items-center gap-4'
-                : 'hidden'
+              isValid ? 'grid grid-cols-4 items-center gap-4' : 'hidden'
             )}
           >
             <Label htmlFor="username" className=" font-bold text-right">
@@ -129,7 +144,11 @@ export const UserInfo = () => {
             Continue
           </Button>
           <DialogClose asChild>
-            <Button className={cn(telegramInfo.chat_id? "block":"hidden")}type="button" variant="secondary">
+            <Button
+              className={cn(isValid ? 'block' : 'hidden')}
+              type="button"
+              variant="secondary"
+            >
               Close
             </Button>
           </DialogClose>

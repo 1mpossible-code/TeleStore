@@ -54,8 +54,11 @@ const mainContentSlice = createSlice({
         setSelected: (state, action: PayloadAction<number>) => {
             state.selectedAmt = action.payload;
         },
-        setValidUser:(state) =>{
+        setValidtrue:(state) =>{
             state.validUser = true;
+        },
+        setValidfalse:(state) =>{
+            state.validUser = false;
         }
 
     },
@@ -175,7 +178,7 @@ export const uploadAsync = createAsyncThunk(
 
 
 
-export const {setToast, setSelected,setValidUser} =
+export const {setToast, setSelected,setValidfalse,setValidtrue} =
     mainContentSlice.actions;
 
 export default mainContentSlice.reducer;

@@ -4,10 +4,11 @@ from Secret import Secret
 
 # Third Party Import
 from dotenv import load_dotenv
-from flask import Flask, request, render_template,jsonify
+from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS
 import logging
 import signal
+from telegram.error import InvalidToken 
 
 import os
 
@@ -40,25 +41,27 @@ def home():
     return render_template('home.html')
 
 # Route to validate user's Bot Token and ChatID
-@app.route('/secret',methods=['GET','POST'])
+
+
+@app.route('/secret', methods=['GET', 'POST'])
 def validate_user():
-    if request.method =='POST':
+    if request.method == 'POST':
         token = request.json['token']
         chat_id = request.json['chat_id']
         secret = Secret()
         secret['token'] = token
         secret['chat_id'] = chat_id
-        return jsonify({"message":"Token and ChatID saved successfully"}), 200
+        return jsonify({"message": "Token and ChatID saved successfully"}), 200
     elif request.method == "GET":
         secret = Secret()
         return jsonify(secret.toJSON()), 200
 
+
 @app.route("/start", methods=["GET"])
 def start():
-    os.system("python start.py")
-    return jsonify({"message":"Chat ID was written successfully!"}), 200
-    
-    
+    os.system("python3 start.py")
+    return jsonify({"message": "Chat ID was written successfully!"}), 200
+
 # Routes for handling file uploads. Supports GET, POST, and DELETE methods.
 @app.route('/uploads/', methods=['GET', 'POST'])
 @app.route('/uploads/<int:uid>', methods=['GET', 'DELETE'])
