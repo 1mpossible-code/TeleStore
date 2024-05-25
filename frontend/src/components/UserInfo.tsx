@@ -11,24 +11,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import cn from 'classnames';
+import {HashLoader} from 'react-spinners'
 
 import { useSelector } from 'react-redux';
 import { RootState } from '@/state/store';
 
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
-import {
-  setValidfalse,
-  setValidtrue,
-} from '@/state/mainContent/mainContentSlice';
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { getValidUser } from '@/state/mainContent/mainContentSlice';
 
 export const UserInfo = () => {
+  const [clicked,SetClicked] = useState(false)
+
   const [telegramInfo, setTelegramInfo] = useState({
     token: '',
-    chat_id: '',
+    chat_id: 0,
   });
   const dispatch = useDispatch<AppDispatch>();
 
@@ -57,6 +57,7 @@ export const UserInfo = () => {
         await axios.get('http://127.0.0.1:3000/start')
       ).status;
       console.log(status);
+      dispatch(getValidUser());
     } catch (error) {
       console.log(error);
     }
@@ -68,7 +69,6 @@ export const UserInfo = () => {
         ...prevState,
         chat_id: res.data.chat_id,
       }));
-      dispatch(setValidtrue());
     } catch (error) {
       console.log(error);
     }
@@ -89,7 +89,7 @@ export const UserInfo = () => {
           <DialogTitle className="mb-5">User Preferences ⚙️</DialogTitle>
           <DialogDescription>
             {telegramInfo.chat_id && telegramInfo.token
-              ? "You're all set!"
+              ? "Edit your token here to change your bot"
               : telegramInfo.token
               ? 'Once full token is submitted, please send "/start" to your bot'
               : `Please input your bot's token to continue`}
@@ -132,17 +132,23 @@ export const UserInfo = () => {
           </div>
         </div>
         <DialogFooter className=" w-10/12 mx-auto flex-col md:flex-end md:justify-end md:w-full">
-          <Button
-            className={'text-white mt-5 md:mt-0'}
-            type="submit"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSave();
-              fetchChatID();
-            }}
-          >
-            Continue
-          </Button>
+          {clicked ? (
+
+            <HashLoader color="#36d7b7" />
+          ) : (
+            <Button
+              className={'text-white mt-5 md:mt-0'}
+              type="submit"
+              onClick={(e) => {
+                e.preventDefault();
+                handleSave();
+                fetchChatID();
+                SetClicked(true);
+              }}
+            >
+              Continue
+            </Button>
+          )}
           <DialogClose asChild>
             <Button
               className={cn(isValid ? 'block' : 'hidden')}
