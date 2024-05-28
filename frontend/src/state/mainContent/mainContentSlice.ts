@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+
 import { PayloadAction } from '@reduxjs/toolkit';
 import { ApiError, DeleteResponse } from '@/types/responseTypes';
 import download from 'js-file-download';
@@ -93,14 +94,9 @@ const mainContentSlice = createSlice({
         state.data = state.data.filter(
           (upload) => upload.id !== action.meta.arg
         );
-
-        if (state.selectedAmt) {
-          state.showToast = true;
-          state.status = `Successfully removed ${state.selectedAmt} file(s)!`;
-        } else {
-          state.showToast = true;
-          state.status = `Successfully removed a file!`;
-        }
+        state.showToast = true;
+        console.log(action.payload);
+        state.status = `${action.payload.message}!`;
       })
       .addCase(uploadAsync.pending, (state) => {
         console.log('uploadAsync is pending...');
@@ -113,22 +109,19 @@ const mainContentSlice = createSlice({
         console.log('uploadAsync is fulfilled...');
         state.data = [action.payload, ...state.data];
 
-        if (state.selectedAmt) {
-          state.showToast = true;
-          state.status = `Successfully uploaded ${state.selectedAmt} file(s)!`;
-        } else {
-          state.showToast = true;
-          state.status = `Successfully uploaded a file!`;
-        }
+        state.showToast = true;
+        state.status = `Successfully uploaded file ${action.payload.name}!`;
+
       })
       .addCase(downloadAsync.pending, (state, action) => {
         console.log('downloadAsync is pending...');
         state.showToast = true;
-        state.status = `Downloading ${action.payload}...`;
+        state.status = `Downloading ${action.meta.arg.name}...`;
       })
       .addCase(downloadAsync.fulfilled, (state, action) => {
         console.log('download is fulfilled...');
         state.showToast = true;
+        console.log(action.payload);
         state.status = `Successfully downloaded file ${action.payload}!`;
       })
       .addCase(getValidUser.pending, () => {
@@ -140,7 +133,7 @@ const mainContentSlice = createSlice({
           state.status = `Successfully retrieved User Info!`;
           console.log(action.payload);
           if (action.payload.chat_id && action.payload.token) {
-            state.validUser = true
+            state.validUser = true;
           }
         }
       )
@@ -181,11 +174,19 @@ export const downloadAsync = createAsyncThunk(
   'mainContentSlice/downloadAsync',
   async ({ id, name }: downloadArguments) => {
     const url = `http://127.0.0.1:3000/uploads/${id}?download=1`;
-    const { data: blob } = await axios.get(url, {
-      responseType: 'blob',
-    });
-    download(blob, name);
-    return name;
+    try {
+      const { data: blob } = await axios.get(url, {
+        responseType: 'blob',
+      });
+      download(blob, name);
+      return name;
+    } catch (error) {
+  const displayError:AxiosError = error as AxiosError;
+      console.log(displayError.response?.data.messege);
+      
+    }
+
+    
   }
 );
 
@@ -193,8 +194,16 @@ export const uploadAsync = createAsyncThunk(
   'mainContentSlice/uploadAsync',
   async (formData: FormData) => {
     const url = `http://127.0.0.1:3000/uploads/`;
-    const res = await axios.post(url, formData);
-    return res.data;
+    try {
+      const res = await axios.post(url, formData);
+      return res.data;
+    } catch (error) {
+      const displayError:AxiosError = error as AxiosError;
+      console.log(displayError.response?.data.messege);
+      
+    }
+    
+    
   }
 );
 
