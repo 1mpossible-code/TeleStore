@@ -22,9 +22,7 @@ const MainContent = () => {
   useEffect(()=>{
     dispatch(getAsync())}, []
   );
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+
   return isFetching ? (
     <SkeletonPage/>
   ) : (

@@ -40,8 +40,6 @@ const UploadDialog = () => {
         const filteredArray = selectedFiles.filter((file, index) => index !== rm_idx);
         setSelectedFiles(filteredArray);
         setFileNames(filteredArray.map((file) => file.name));
-        console.log(filteredArray);
-
     }
 
 

@@ -18,8 +18,6 @@ const App = () => {
 
     useEffect(()=>{
         dispatch(getValidUser());
-        console.log(isValid);
-        
     },[isValid])
   
 
