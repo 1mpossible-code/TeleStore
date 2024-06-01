@@ -68,6 +68,7 @@ const mainContentSlice = createSlice({
       })
       .addCase(getAsync.fulfilled, (state, action: PayloadAction<Upload[]>) => {
         console.log('getAsync is fulfilled!');
+        state.error = null;
         state.Fetching = false;
         state.data = action.payload.reverse();
       })
@@ -90,12 +91,12 @@ const mainContentSlice = createSlice({
       })
       .addCase(deleteAsync.fulfilled, (state, action) => {
         console.log('deleteAsync is fulfilled!');
+        state.error = null;
         state.message = action.payload.message;
         state.data = state.data.filter(
           (upload) => upload.id !== action.meta.arg
         );
         state.showToast = true;
-        console.log(action.payload);
         state.status = `${action.payload.message}!`;
       })
       .addCase(uploadAsync.pending, (state) => {
@@ -106,12 +107,18 @@ const mainContentSlice = createSlice({
           : `Uploading file...`;
       })
       .addCase(uploadAsync.fulfilled, (state, action) => {
-        console.log('uploadAsync is fulfilled...');
+        console.log('uploadAsync is fulfilled!');
+        state.error = null;
         state.data = [action.payload, ...state.data];
 
         state.showToast = true;
         state.status = `Successfully uploaded file ${action.payload.name}!`;
-
+      })
+      .addCase(uploadAsync.rejected, (state, action) => {
+        console.log('uploadAsync is rejected!');
+        state.showToast = true;
+        state.error = { message: action.error.message || 'File upload error' };
+        state.status = `Unable to upload file`;
       })
       .addCase(downloadAsync.pending, (state, action) => {
         console.log('downloadAsync is pending...');
@@ -120,6 +127,7 @@ const mainContentSlice = createSlice({
       })
       .addCase(downloadAsync.fulfilled, (state, action) => {
         console.log('download is fulfilled...');
+        state.error = null;
         state.showToast = true;
         console.log(action.payload);
         state.status = `Successfully downloaded file ${action.payload}!`;
@@ -130,8 +138,9 @@ const mainContentSlice = createSlice({
       .addCase(
         getValidUser.fulfilled,
         (state, action: PayloadAction<userInfo>) => {
+          console.log('getValidUser is fulfilled!');
+          state.error = null;
           state.status = `Successfully retrieved User Info!`;
-          console.log(action.payload);
           if (action.payload.chat_id && action.payload.token) {
             state.validUser = true;
           }
@@ -145,10 +154,15 @@ const mainContentSlice = createSlice({
 
 export const getValidUser = createAsyncThunk(
   'mainContentSlice/getValidUser',
-  async (): Promise<userInfo> => {
-    const url = 'http://127.0.0.1:3000/secret';
-    const res = await axios.get<userInfo>(url);
-    return res.data;
+  async (thunkAPI): Promise<userInfo> => {
+    try {
+      const url = 'http://127.0.0.1:3000/secret';
+      const res = await axios.get<userInfo>(url);
+      return res.data;
+    } catch (error) {
+      const displayError = error as AxiosError;
+      return thunkAPI.reject(displayError.response);
+    }
   }
 );
 
@@ -172,7 +186,7 @@ export const deleteAsync = createAsyncThunk(
 
 export const downloadAsync = createAsyncThunk(
   'mainContentSlice/downloadAsync',
-  async ({ id, name }: downloadArguments) => {
+  async ({ id, name }: downloadArguments, thunkAPI) => {
     const url = `http://127.0.0.1:3000/uploads/${id}?download=1`;
     try {
       const { data: blob } = await axios.get(url, {
@@ -181,29 +195,23 @@ export const downloadAsync = createAsyncThunk(
       download(blob, name);
       return name;
     } catch (error) {
-  const displayError:AxiosError = error as AxiosError;
-      console.log(displayError.response?.data.messege);
-      
+      const displayError: AxiosError = error as AxiosError;
+      return thunkAPI.rejectWithValue(displayError.response);
     }
-
-    
   }
 );
 
 export const uploadAsync = createAsyncThunk(
   'mainContentSlice/uploadAsync',
-  async (formData: FormData) => {
+  async (formData: FormData, thunkAPI) => {
     const url = `http://127.0.0.1:3000/uploads/`;
     try {
       const res = await axios.post(url, formData);
       return res.data;
     } catch (error) {
-      const displayError:AxiosError = error as AxiosError;
-      console.log(displayError.response?.data.messege);
-      
+      const displayError: AxiosError = error as AxiosError;
+      return thunkAPI.rejectWithValue(displayError.response);
     }
-    
-    
   }
 );
 

@@ -20,7 +20,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/state/store';
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { getValidUser } from '@/state/mainContent/mainContentSlice';
 
 export const UserInfo = () => {
@@ -47,7 +47,6 @@ export const UserInfo = () => {
   const handleSave = () => {
     const { token, chat_id } = telegramInfo;
     const payload = { token, chat_id };
-    console.log(payload);
     axios.post('http://localhost:3000/secret', payload);
   };
 
@@ -56,7 +55,6 @@ export const UserInfo = () => {
       const status = await (
         await axios.get('http://127.0.0.1:3000/start')
       ).status;
-      console.log(status);
       dispatch(getValidUser());
     } catch (error) {
       console.log(error);
@@ -64,13 +62,15 @@ export const UserInfo = () => {
 
     try {
       const res = await axios.get('http://127.0.0.1:3000/secret');
-      console.log(res);
+
       setTelegramInfo((prevState) => ({
         ...prevState,
         chat_id: res.data.chat_id,
       }));
     } catch (error) {
-      console.log(error);
+      const err = error as AxiosError
+      console.log(err);
+      
     }
   };
 
