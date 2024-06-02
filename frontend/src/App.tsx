@@ -1,6 +1,6 @@
 import Header from './components/Header/Header';
 import MainContent from './components/MainContent/MainContent';
-import {Footer} from "@/components/Footer /Footer";
+import {Footer} from "@/components/Footer/Footer";
 import ThemeProvider from '@/components/ThemeProvider';
 import {Toaster} from "@/components/ui/toaster"
 import './App.css';
