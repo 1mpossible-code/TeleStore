@@ -4,6 +4,7 @@ import os
 import asyncio
 import requests
 from App import App
+from flask import jsonify
 
 from telegram import Update
 from telegram.ext import ContextTypes, filters, CommandHandler, MessageHandler
@@ -24,6 +25,7 @@ async def main() -> None:
     """Start the bot."""
     app = App()
     print(await app.get_all_files_info())
+
 
 if __name__ == "__main__":
     asyncio.run(main())

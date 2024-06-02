@@ -34,7 +34,7 @@ class UploadsController:
         asyncio.run(self.app.download_file(uid))
         res = send_from_directory(
             self.app.file_manager.files_dir, file_info[1], as_attachment=True)
-        self.app.file_manager.clean_files_directory()
+        self.app.file_manager.clean_files_directory(file_info[1])
         return res
 
     def __read_all(self):
@@ -109,7 +109,7 @@ class UploadsController:
         and saves the uploaded file using the App's file management capabilities.
 
         Returns:
-            flask.Response: JSON response indicating the success or failure of the file upload.
+            flask.Response: JSON response of the new file that was uploaded.
         """
         if 'file' not in request.files:
             return jsonify({"message": "No file part in the request"}), 400
@@ -121,11 +121,18 @@ class UploadsController:
 
         # Create the file path and use app upload_file method
         user_file_path = os.path.join(
-            self.app.file_manager.temp_dir, user_file.filename)
+            self.app.file_manager.files_dir, user_file.filename)
         user_file.save(user_file_path)
         asyncio.run(self.app.upload_file(user_file_path))
-        self.app.file_manager.clean_temp_directory()
-        return jsonify({"message": "File successfully uploaded"}), 200
+        
+        # Get last item in array and format in JSON        
+        arr_len = len(asyncio.run(self.app.get_all_files_info()))
+        new_file = asyncio.run(self.app.get_all_files_info())[arr_len - 1]
+        file_dict = {'id': new_file[0], 'name': new_file[1],
+                     'message_ids': new_file[2], 'file_ids': new_file[3],
+                     'size': new_file[4]}
+        self.app.file_manager.clean_files_directory(new_file[1])
+        return jsonify(file_dict), 200
 
     def delete(self, uid: int):
         """

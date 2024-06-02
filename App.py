@@ -4,9 +4,11 @@ from Bot import Bot
 from Files import Files
 from FileManager import FileManager
 from Cryptography import Cryptography
+from Secret import Secret
+import uuid
 
 # Size is 2048 MB, but encryption increases the file size by about 30%
-MAX_FILE_SIZE_MB = 1500
+MAX_FILE_SIZE_MB = 10
 MB_TO_BYTES = 1024 * 1024
 
 
@@ -34,12 +36,12 @@ class App:
     def __init__(self) -> None:
         """Initialize the application with bot, database, and file management components."""
         # We get the token and chat ID from environment variables.
-        token = os.getenv("TOKEN")
-        chat_id = os.getenv("CHAT_ID")
+        secret = Secret()
+        token = secret["token"]
+        chat_id = secret["chat_id"]
 
         # Now we optionally get the database name, temp directory, and files directory from environment variables.
         # If they are not set, we use the default values.
-        db_name = os.getenv("DB_NAME") or "db.sqlite"
         temp_dir = os.getenv("TEMP_DIR") or "temp"
         files_dir = os.getenv("FILES_DIR") or "files"
 
@@ -58,13 +60,13 @@ class App:
         logging.info(f"Sending file: {file_path}")
         size = os.path.getsize(file_path)
         logging.info("Splitting the large file...")
-        split_files = self.file_manager.split_file(
+        split_files, new_fn = self.file_manager.split_file(
             file_path, MAX_FILE_SIZE_MB * MB_TO_BYTES
         )
         msg_ids, file_ids = await self._send_multiple_files(split_files)
         Files.insert_file(os.path.basename(file_path), msg_ids, file_ids, size)
         logging.info("Large file successfully sent and recorded in the database.")
-        self.file_manager.clean_temp_directory()
+        self.file_manager.clean_temp_directory(f"{new_fn}*")
 
     async def _send_multiple_files(self, file_paths):
         """Send multiple files and return message and file IDs.
@@ -100,45 +102,42 @@ class App:
             return
 
         file_ids = file_info[3].split(",")
+        temp_path = os.path.join(self.file_manager.temp_dir, str(uuid.uuid4()))
         file_path = os.path.join(self.file_manager.files_dir, file_info[1])
 
-        with open(file_path, "wb") as file:
-            downloaded = []
-            for file_id in file_ids:
-                # save file part and decrypt it
-                logging.info(f"Downloading file part: {file_id}")
-                if not os.path.exists(f"{self.file_manager.temp_dir}/{file_info[1]}/"):
-                    os.makedirs(f"{self.file_manager.temp_dir}/{file_info[1]}/")
-                with open(
-                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}", "wb"
-                ) as f:
-                    f.write(await self.bot.get_file(file_id))
-                    downloaded.append(file_id)
-                logging.info(f"Decrypting file part: {file_id}")
-                print(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
-                self.cryptography.decrypt_file(
-                    f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}"
-                )
+        counter = 0
+        downloaded = []
+        for file_id in file_ids:
+            # save file part and decrypt it
+            logging.info(f"Downloading file part: {file_id}")
+            if not os.path.exists(temp_path):
+                os.makedirs(temp_path)
+            with open(os.path.join(temp_path, f"{counter}"), "wb") as f:
+                f.write(await self.bot.get_file(file_id))
+                downloaded.append(file_id)
+            logging.info(f"Decrypting file part: {file_id}")
+            self.cryptography.decrypt_file(os.path.join(temp_path, str(counter)))
+            counter += 1
 
-            # join file parts
-            logging.info("Joining file parts...")
-            # if windows, use copy /b command
-            if os.name == "nt":
-                os.system(
-                    f"copy /b {self.file_manager.temp_dir}/{file_info[1]}/* {file_path}"
-                )
-            else:
-                # if linux, use cat command
-                os.system(
-                    f"cat {self.file_manager.temp_dir}/{file_info[1]}/* > {file_path}"
-                )
-            logging.info("File parts joined.")
+        # join file parts
+        logging.info("Joining file parts...")
+        # if windows, use copy /b command
+        if os.name == "nt":
+            os.system(f'copy /b "{path}" "{file_path}"')
+        else:
+            # if linux, use cat command
+            fp = ''
+            for i in range(counter):
+                fp += os.path.join(temp_path, str(i)) + " "
+            print(fp)
+            os.system(f'cat {fp} > "{file_path}"')
+        logging.info("File parts joined.")
 
         logging.info(f"File downloaded: {file_path}")
         # clean up
-        for file_id in downloaded:
-            os.remove(f"{self.file_manager.temp_dir}/{file_info[1]}/{file_id}")
-        os.rmdir(f"{self.file_manager.temp_dir}/{file_info[1]}/")
+        for i in range(counter):
+            os.remove(os.path.join(temp_path, str(i)))
+        os.rmdir(temp_path)
 
     async def get_all_files_info(self) -> list:
         """Get information about all files from the database.
@@ -171,7 +170,6 @@ class App:
         logging.info(f"Fetching information for file with UID: {uid}")
         return Files.get_file(uid)
 
-
     async def delete_file(self, uid: int) -> None:
         """Delete a file based on its unique identifier. This deletes the file from the database and bot storage.
         It finds all messages associated with the file and deletes them.
@@ -180,12 +178,13 @@ class App:
             uid (int): The unique identifier of the file to be deleted.
         """
         logging.info(f"Deleting file with UID: {uid}")
-        file_info = Files.get_file(uid)
-        if not file_info:
-            logging.error(f"File with UID {uid} not found.")
-            raise ValueError(f"File with UID {uid} not found.")
-        msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
-        for msg_id in msg_ids:
-            await self.bot.delete_file(msg_id)
+        # The telegram bot cannot delete messages that were sent more than 48 hours ago.
+        # file_info = Files.get_file(uid)
+        # if not file_info:
+        #     logging.error(f"File with UID {uid} not found.")
+        #     raise ValueError(f"File with UID {uid} not found.")
+        # msg_ids = file_info[2].split(",") if "," in file_info[2] else [file_info[2]]
+        # for msg_id in msg_ids:
+        #     await self.bot.delete_file(msg_id)
         Files.remove_file(uid)
         logging.info(f"File with UID {uid} deleted from database and bot storage.")

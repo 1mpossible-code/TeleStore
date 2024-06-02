@@ -1,10 +1,25 @@
 import os
 import logging
 import requests
+import asyncio
 
 from typing import Tuple
 
 from telegram.ext import Application
+
+# Decorator to track errors. if more than 3 errors occur, raise an exception
+def error_handler(func):
+    async def wrapper(*args, **kwargs):
+        error_count = 0
+        while error_count < 3:
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                error_count += 1
+                await asyncio.sleep(5)
+                logging.error(f"Error in {func.__name__}: {e}")
+        raise Exception(f"Failed to execute {func.__name__}")
+    return wrapper
 
 class Bot:
     def __init__(self, token, chat_id) -> None:
@@ -12,6 +27,7 @@ class Bot:
         self.application = Application.builder().token(token).build()
         self.chat_id = chat_id
 
+    @error_handler
     async def send_file(self, file_path: str) -> Tuple[int, str]:
         # Sending the document to the specified chat ID and getting the response
         data = await self.application.bot.send_document(
@@ -25,6 +41,7 @@ class Bot:
         # Returning the message ID and file ID
         return message_id, file_id
     
+    @error_handler
     async def get_file(self, file_id: str) -> str:
         # Get file details from Telegram
         file_data = await self.application.bot.get_file(file_id)
