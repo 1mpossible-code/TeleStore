@@ -156,7 +156,7 @@ export const getValidUser = createAsyncThunk(
   'mainContentSlice/getValidUser',
   async (thunkAPI): Promise<userInfo> => {
     try {
-      const url = 'http://127.0.0.1:3000/secret';
+      const url = 'backend:3000/secret';
       const res = await axios.get<userInfo>(url);
       return res.data;
     } catch (error) {
@@ -169,7 +169,7 @@ export const getValidUser = createAsyncThunk(
 export const getAsync = createAsyncThunk(
   'mainContentSlice/getAsync',
   async (): Promise<Array<Upload>> => {
-    const url = 'http://127.0.0.1:3000/uploads/';
+    const url = 'backend:3000/uploads/';
     const res = await axios.get<Array<Upload>>(url);
     return res.data;
   }
@@ -178,7 +178,7 @@ export const getAsync = createAsyncThunk(
 export const deleteAsync = createAsyncThunk(
   'mainContentSlice/deleteAsync',
   async (id: number): Promise<DeleteResponse> => {
-    const url = `http://127.0.0.1:3000/uploads/${id}`;
+    const url = `backend:3000/uploads/${id}`;
     const res = await axios.delete<DeleteResponse>(url);
     return res.data;
   }
@@ -187,7 +187,7 @@ export const deleteAsync = createAsyncThunk(
 export const downloadAsync = createAsyncThunk(
   'mainContentSlice/downloadAsync',
   async ({ id, name }: downloadArguments, thunkAPI) => {
-    const url = `http://127.0.0.1:3000/uploads/${id}?download=1`;
+    const url = `backend:3000/uploads/${id}?download=1`;
     try {
       const { data: blob } = await axios.get(url, {
         responseType: 'blob',
@@ -204,7 +204,7 @@ export const downloadAsync = createAsyncThunk(
 export const uploadAsync = createAsyncThunk(
   'mainContentSlice/uploadAsync',
   async (formData: FormData, thunkAPI) => {
-    const url = `http://127.0.0.1:3000/uploads/`;
+    const url = `backend:3000/uploads/`;
     try {
       const res = await axios.post(url, formData);
       return res.data;

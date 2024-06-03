@@ -90,4 +90,4 @@ if __name__ == "__main__":
         exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
-    asyncio.run(app.run(debug=True, port=3000))
+    asyncio.run(app.run(debug=True, port=3000, host="0.0.0.0"))
