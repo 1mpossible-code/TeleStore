@@ -39,6 +39,7 @@ class App:
         secret = Secret()
         token = secret["token"]
         chat_id = secret["chat_id"]
+        Files.create_table()
 
         # Now we optionally get the database name, temp directory, and files directory from environment variables.
         # If they are not set, we use the default values.
