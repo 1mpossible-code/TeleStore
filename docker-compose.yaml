@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    image: python:3.9
+    image: python:3.11.6
     volumes:
       - .:/app
     working_dir: /app
