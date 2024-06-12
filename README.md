@@ -46,13 +46,13 @@ To get a local copy up and running, follow these simple steps.
 ### Installation
 1. **Clone the repository:**
     ```bash
-    git clone git@github.com:1mpossible-code/telegram-storage.git
+    https://github.com/1mpossible-code/telegram-storage.git
     cd telegram-storage
     ```
 
 2. **Start Docker containers:**
     ```bash
-    docker-compose up
+    docker compose up
     ```
 
 
@@ -65,12 +65,6 @@ To get a local copy up and running, follow these simple steps.
     - Send the command `/start` to your bot to initialize the interaction.
 
 That's it! Your Telegram bot is now ready to store and manage your files efficiently.
-
-
-
-
-
-
 
 See the [open issues](https://github.com/1mpossible-code/telegram-storage/issues) for a full list of proposed features (and known issues).
 
