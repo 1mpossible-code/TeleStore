@@ -1,4 +1,4 @@
-# TeleStore: Secure and Free Encrypted File Storage
+# Free, Unlimited, and Encrypted File Storage via Telegram
 
 Effortlessly store and manage your files with robust encryption for ultimate privacy and security!
 
@@ -17,9 +17,9 @@ Effortlessly store and manage your files with robust encryption for ultimate pri
 
 ## About The Project
 
-![ScreenRecording2024-06-01at8 24 39PM-ezgif com-video-to-gif-converter](https://github.com/1mpossible-code/telegram-storage/assets/109933928/6bf007f4-e813-4562-b2ca-7fc8cef585e6)
+![Project-Demo-GIF](https://github.com/1mpossible-code/telegram-storage/assets/109933928/6bf007f4-e813-4562-b2ca-7fc8cef585e6)
 
-TeleStore leverages the Telegram Bot API to store and retrieve files easily, allowing for a seamless file storage and management experience. Furthermore, TeleStore encrypts your files, ensuring your data is kept private. With its user-friendly interface and robust security measures, TeleStore is the perfect solution for managing your files securely and efficiently.
+Telegram storage leverages the Telegram Bot API to store and retrieve files easily, allowing for a seamless file storage and management experience. Furthermore, Telegram storage encrypts your files, ensuring your data is kept private. With its user-friendly interface and robust security measures, Telegram storage is the perfect solution for managing your files securely and efficiently.
 
 
 ## Built With
@@ -41,17 +41,20 @@ To get a local copy up and running, follow these simple steps.
 ### Prerequisites
 
 - Docker 
+- [Docker compose](#https://github.com/docker/compose)
 - [Telegram Bot](#https://core.telegram.org/bots/tutorial)
 
 ### Installation
-1. **Clone the repository:**
+1.
     ```bash
+    # Clone the repository:
     https://github.com/1mpossible-code/telegram-storage.git
     cd telegram-storage
     ```
 
-2. **Start Docker containers:**
+2. 
     ```bash
+    # Start Docker containers:
     docker compose up
     ```
 
