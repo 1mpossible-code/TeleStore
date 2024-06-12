@@ -87,6 +87,4 @@ If you have a suggestion that would make this better, please fork the repo and c
 
 ## License
 
-Distributed under the GPL3 License. See `LICENSE` for more information.
-
-[back to top](#table-of-contents)
+Distributed under the [GPLv3 License](./LICENSE).
