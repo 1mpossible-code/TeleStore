@@ -1,6 +1,6 @@
-# Telegram Storage
+# TeleStore: Secure and Free Encrypted File Storage
 
-An awesome project to leverage the Telegram Bot API for storing and retrieving files easily.
+Effortlessly store and manage your files with robust encryption for ultimate privacy and security!
 
 [Report Bug](https://github.com/1mpossible-code/telegram-storage/issues) · [Request Feature](https://github.com/1mpossible-code/telegram-storage/issues)
 
@@ -19,25 +19,20 @@ An awesome project to leverage the Telegram Bot API for storing and retrieving f
 
 ![ScreenRecording2024-06-01at8 24 39PM-ezgif com-video-to-gif-converter](https://github.com/1mpossible-code/telegram-storage/assets/109933928/6bf007f4-e813-4562-b2ca-7fc8cef585e6)
 
-Telegram Storage leverages the Telegram Bot API to store and retrieve files easily. It allows users to upload, store, and manage files directly through a Telegram bot, making it convenient to access your files from anywhere.
+TeleStore leverages the Telegram Bot API to store and retrieve files easily, allowing for a seamless file storage and management experience. Furthermore, TeleStore encrypts your files, ensuring your data is kept private. With its user-friendly interface and robust security measures, TeleStore is the perfect solution for managing your files securely and efficiently.
 
-Here's why this project stands out:
-- **Convenience:** Easily upload and retrieve files through Telegram.
-- **Accessibility:** Access your files from anywhere with Telegram.
-- **Simplicity:** Easy setup and usage instructions.
-
-[back to top](#table-of-contents)
 
 ## Built With
 
 This section lists any major frameworks/libraries used to bootstrap the project.
 
-- Python
 - Telegram Bot API
+- Flask
 - Docker
-- Node.js
+- React
+- Redux
 
-[back to top](#table-of-contents)
+
 
 ## Getting Started
 
@@ -45,55 +40,37 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-Ensure you have the following installed:
-- Docker
-- Python
-- Node.js
-- npm
-- pnpm
+- Docker 
+- [Telegram Bot](#https://core.telegram.org/bots/tutorial)
 
 ### Installation
+1. **Clone the repository:**
+    ```bash
+    git clone git@github.com:1mpossible-code/telegram-storage.git
+    cd telegram-storage
+    ```
 
-1. **Start Docker containers:**
+2. **Start Docker containers:**
     ```bash
     docker-compose up
     ```
 
-2. **Create a virtual environment and install Python dependencies:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    pip install -r requirements.txt
-    ```
-
-3. **Create a `.env` file:**
-    - Use the `.env.example` file as a template to create your `.env` file.
-    ```bash
-    cp .env.example .env
-    ```
-    - Fill in your environment variables in the `.env` file.
-
-4. **Navigate to the frontend directory and install dependencies:**
-    ```bash
-    cd frontend
-    npm install
-    pnpm install
-    ```
-
-[back to top](#table-of-contents)
 
 ## Usage
+1. **Setup your Telegram bot**:
+    - Open a conversation with [BotFather](https://t.me/botfather).
+    - Use the command `/newbot` and follow the instructions to create a new bot.
+    - Save the token provided by BotFather.
+2. **Interact with your bot:**
+    - Send the command `/start` to your bot to initialize the interaction.
 
-1. Start the API server:
-    ```bash
-    python3 api.py
-    ```
-
-2. Follow the directions in the user interface to interact with the bot, upload files, and retrieve files.
+That's it! Your Telegram bot is now ready to store and manage your files efficiently.
 
 
 
-[back to top](#table-of-contents)
+
+
+
 
 See the [open issues](https://github.com/1mpossible-code/telegram-storage/issues) for a full list of proposed features (and known issues).
 
@@ -109,10 +86,10 @@ If you have a suggestion that would make this better, please fork the repo and c
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-[back to top](#table-of-contents)
+
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GPL3 License. See `LICENSE` for more information.
 
 [back to top](#table-of-contents)
