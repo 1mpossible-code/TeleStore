@@ -48,7 +48,7 @@ To get a local copy up and running, follow these simple steps.
 1.
     ```bash
     # Clone the repository:
-    https://github.com/1mpossible-code/telegram-storage.git
+    git clone https://github.com/1mpossible-code/TeleStore.git
     cd telegram-storage
     ```
 
